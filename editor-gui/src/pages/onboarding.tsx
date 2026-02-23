@@ -50,7 +50,7 @@ const formSchema = z.object({
   provider: z.enum(["openai", "openrouter", "other"], {
     message: "Please select an LLM provider.",
   }),
-  apiUrl: z.url("Please enter a valid URL."),
+  apiUrl: z.string().url("Please enter a valid URL.").min(1, "Please enter a URL."),
   apiKey: z.string().min(1, "API key is required."),
   fullName: z.string().min(2, "Name must be at least 2 characters."),
 });

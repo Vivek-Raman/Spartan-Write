@@ -6,6 +6,7 @@ import { ThemeProvider } from "./contexts/theme-context";
 import { AccessibilityProvider } from "./contexts/accessibility-context";
 import { SettingsProvider } from "./contexts/settings-context";
 import "./index.css";
+import "@copilotkit/react-core/v2/styles.css";
 
 // Permanently hide the CopilotKit inspector / dev-console floating button.
 // This uses the same storage key that CopilotKit's ConsoleTrigger checks.

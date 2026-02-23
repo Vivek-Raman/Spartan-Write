@@ -199,10 +199,3 @@
   row-gap: 0.5rem;
 }
 
-/* Hide CopilotKit floating inspector trigger button */
-button[title^="Open Inspector (Drag to move)"],
-button[title^="Inspector (License Key Required, Drag to move)"] {
-  display: none !important;
-}
-
-

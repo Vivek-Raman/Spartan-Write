@@ -11,15 +11,9 @@ import { CopilotKit } from "@copilotkit/react-core";
 function EditorContent() {
   const { currentFile, compileAndRefresh, loadFile, dir } = useEditor();
   const [activeTab, setActiveTab] = useState<"preview" | "source">("preview");
-  const prevInProgressRef = useRef<boolean>(false);
 
-  const handleInProgress = (inProgress: boolean) => {
-    // When inProgress changes from true to false, agent has completed responding
-    if (prevInProgressRef.current && !inProgress) {
-      // Agent just finished responding, fetch PDF and update preview
-      compileAndRefresh();
-    }
-    prevInProgressRef.current = inProgress;
+  const onComplete = () => {
+    compileAndRefresh();
   };
 
   return (
@@ -55,7 +49,7 @@ function EditorContent() {
 
           {/* Right Sidebar - AI Assistant */}
           <div className="w-80 shrink-0">
-            <AIChat onInProgress={handleInProgress} />
+            <AIChat onComplete={onComplete} />
           </div>
         </div>
       </div>

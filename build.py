@@ -27,8 +27,8 @@ GUI_DIR = ROOT / "editor-gui"
 SIDECAR_DIR = GUI_DIR / "src-tauri" / "bin"
 
 # Tectonic binary download
-TECTONIC_VERSION = "0.15.0"
-TECTONIC_RELEASE_URL = "https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.15.0"
+TECTONIC_VERSION = "0.15.0+20251006"
+TECTONIC_RELEASE_URL = "https://github.com/tectonic-typesetting/tectonic/releases/download/continuous"
 
 
 def get_target_triple() -> str:

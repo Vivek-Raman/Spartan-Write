@@ -56,14 +56,14 @@ SYSTEM_PROMPT = dedent(
             \\caption{Figure caption}
             \\label{figure_label}
             \\end{figure}
-        - The project should have a tables/ directory.
+        - The project should have a `tables/` directory.
           Tables are referenced in the sections as requested by the user.
-        - The project should have a sections/ directory.
+        - The project should have a `sections/` directory.
           Sections are referenced in the main.tex file using \\input{sections/section_name}.
           All of the text content goes in the sections.
           If there are subsections, each subsection should be in a separate file.
-          For example, for section 1.1, the file should be called 1_1.tex and should be imported in 1.tex using \\input{1_1}.
-          Then, 1.tex is imported in main.tex using \\input{sections/1}.
+          For example, for section "1.1 Introduction", the file should be called `1_1_introduction.tex`.
+          Then, `1_1_introduction.tex` is imported in main.tex using \\input{sections/1_1_introduction}.
         
 
         If you understand, reply with "Let's get started!"

@@ -1,29 +1,26 @@
-import { CopilotChat } from "@copilotkit/react-ui";
-
-import { CustomAssistantMessage } from "@/components/chat/assistant-message";
-import { CustomUserMessage } from "@/components/chat/user-message";
-import { AIChatInput } from "@/components/ai-chat-input";
+import { CopilotChat } from "@copilotkit/react-core/v2";
+import useRenderReadFileTool from "./tool-calls/read-file-tool";
+import useRenderListFilesTool from "./tool-calls/list-files-tool";
+import useRenderEditFileTool from "./tool-calls/edit-file-tool";
+import useRenderCompileProjectTool from "./tool-calls/compile-project-tool";
 
 interface AIChatProps {
-  onInProgress?: (inProgress: boolean) => void;
+  onComplete: () => void;
 }
 
-export default function AIChat({ onInProgress }: AIChatProps) {
+export default function AIChat({ onComplete }: AIChatProps) {
+  useRenderReadFileTool();
+  useRenderListFilesTool();
+  useRenderEditFileTool();
+  useRenderCompileProjectTool();
 
   return (
     <div className="flex h-full flex-col bg-background">
       <div className="flex-1 min-h-0 px-2 py-2">
         <CopilotChat
           className="flex h-full flex-col"
-          disableSystemMessage
-          labels={{
-            placeholder: "Add this content to section 1...",
-          }}
-          AssistantMessage={CustomAssistantMessage}
-          UserMessage={CustomUserMessage}
-          Input={AIChatInput}
-          imageUploadsEnabled
-          onInProgress={onInProgress}
+          welcomeScreen={false}
+          input={{ onStop: onComplete }}
         />
       </div>
     </div>
