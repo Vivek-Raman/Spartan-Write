@@ -1,4 +1,4 @@
-# LaTeX Chatbot Editor
+# Spartan Write
 
 A powerful, AI-assisted LaTeX editor featuring a local FastAPI backend, a Tauri + React frontend, and a built-in benchmark suite.
 

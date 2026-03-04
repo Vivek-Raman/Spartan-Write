@@ -24,3 +24,9 @@ export function saveRecentProject(path: string, name: string): RecentProject[] {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   return updated;
 }
+
+export function removeRecentProject(path: string): RecentProject[] {
+  const updated = loadRecentProjects().filter((p) => p.path !== path);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  return updated;
+}
