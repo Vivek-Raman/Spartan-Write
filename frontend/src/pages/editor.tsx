@@ -17,11 +17,13 @@ import {
 } from "@/components/ui/resizable";
 import { CopilotKit } from "@copilotkit/react-core";
 import { SERVER_API_BASE_URL } from "@/api/constants";
+import { getWorkosRefreshToken } from "@/lib/auth";
 
 function EditorContent() {
   const { currentFile, compileAndRefresh, loadFile, dir } = useEditor();
   const { uploadedImageData } = useImageForAIChat();
   const [activeTab, setActiveTab] = useState<"preview" | "source">("preview");
+  const token = getWorkosRefreshToken();
 
   // FIXME: Invoke this when the AI chat is complete
   // const onComplete = () => {
@@ -32,8 +34,9 @@ function EditorContent() {
     <CopilotKit
       runtimeUrl={`${SERVER_API_BASE_URL}/copilotkit`}
       agent="0"
-      // headers={{
-      // }}
+      headers={{
+        ...(token && { Authorization: `Bearer ${token}` }),
+      }}
       properties={{
         folder_path: dir,
         attached_image_path: uploadedImageData?.path ?? null,

@@ -1,4 +1,12 @@
-import { VITE_WORKOS_CLIENT_ID } from "@/api/auth-keys";
+import { WORKOS_CLIENT_ID } from "@/api/auth-keys";
+
+export const WORKOS_REFRESH_TOKEN_KEY = "workos:refresh-token";
+
+export function getWorkosRefreshToken(): string | null {
+  return typeof window !== "undefined"
+    ? window.localStorage.getItem(WORKOS_REFRESH_TOKEN_KEY)
+    : null;
+}
 
 export async function exchangeCodeForToken(
   code: string,
@@ -11,7 +19,7 @@ export async function exchangeCodeForToken(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      client_id: VITE_WORKOS_CLIENT_ID,
+      client_id: WORKOS_CLIENT_ID,
       grant_type: "authorization_code",
       code,
       code_verifier: codeVerifier,

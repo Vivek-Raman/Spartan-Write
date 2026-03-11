@@ -234,9 +234,12 @@ def build_tauri_release():
 
 
 def build_tauri_debug():
-    """Run tauri build with debug flag."""
+    """Run tauri build with debug flag. Skip DMG to avoid bundle_dmg.sh failures."""
     print("\n=== Building Tauri app ===")
-    run(["npm", "run", "tauri", "build", "--", "--debug"], cwd=FRONTEND_DIR)
+    run(
+        ["npm", "run", "tauri", "build", "--", "--debug", "--bundles", "app"],
+        cwd=FRONTEND_DIR,
+    )
 
 
 def main():

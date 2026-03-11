@@ -2,11 +2,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import { AuthKitProvider, useAuth } from "@workos-inc/authkit-react";
-import { VITE_WORKOS_CLIENT_ID } from "@/api/auth-keys";
-import { exchangeCodeForToken } from "@/lib/auth";
+import { WORKOS_CLIENT_ID } from "@/api/auth-keys";
+import { exchangeCodeForToken, WORKOS_REFRESH_TOKEN_KEY } from "@/lib/auth";
 
 const WORKOS_CODE_VERIFIER_KEY = "workos:code-verifier";
-const WORKOS_REFRESH_TOKEN_KEY = "workos:refresh-token";
 
 function parseAuthCallbackUrl(url: string): URLSearchParams | null {
   try {
@@ -94,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthKitProvider
       key={authKey}
-      clientId={VITE_WORKOS_CLIENT_ID}
+      clientId={WORKOS_CLIENT_ID}
       redirectUri="spartan-write://auth-callback"
       devMode={true}>
       <RedirectWhenUnauthenticated>{children}</RedirectWhenUnauthenticated>

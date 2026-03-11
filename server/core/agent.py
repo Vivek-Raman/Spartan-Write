@@ -8,6 +8,14 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 from copilotkit import CopilotKitState
+from pydantic import BaseModel
+
+
+class AgentCreds(BaseModel):
+    openai_api_key: str
+    openai_api_base: str
+    openai_api_model: str
+
 
 SYSTEM_PROMPT = dedent(
     """ You are a helpful LaTeX assistant that can read, write, and modify LaTeX files 
@@ -185,13 +193,8 @@ def create_tools(folder_path: Path, attached_image_path: str | None):
     ]
 
 
-def create_model():
-    """Create the ChatOpenAI model configured for OpenRouter."""
-    config = {}
-    api_key = config.get('openai_api_key', '')
-    api_model = config.get('openai_api_model', 'gpt-4o-mini')
-
-    if not api_key:
+def create_model(creds: AgentCreds):
+    if not creds.openai_api_key:
         raise ValueError("OpenAI API key not configured.")
 
     return ChatOpenAI(
@@ -199,16 +202,16 @@ def create_model():
             'X-Title': 'Spartan Write',
             'HTTP-Referer': 'https://vivekraman.dev/blog/spartan-write',
         },
-        model=api_model,
-        api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
+        model=creds.openai_api_model,
+        api_key=creds.openai_api_key,
+        base_url=creds.openai_api_base,
     )
 
 
-def create_graph(folder_path: Path,
+def create_graph(creds: AgentCreds, folder_path: Path,
                  attached_image_path: str | None) -> CompiledStateGraph:
     """Create and return a configured LangGraph agent."""
-    model = create_model()
+    model = create_model(creds)
     tools = create_tools(folder_path, attached_image_path)
     model_with_tools = model.bind_tools(tools)
 

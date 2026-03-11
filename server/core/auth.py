@@ -1,16 +1,18 @@
 import os
 from dataclasses import dataclass
 from functools import lru_cache
+from typing import Any
 
 from fastapi import Request
 from workos import WorkOSClient
 from workos.exceptions import AuthenticationException, BaseRequestException
+from workos.types.user_management import User
 
 
 @dataclass
 class AuthenticatedSession:
     user_id: str
-    organization_id: str | None
+    user: User
 
 
 class AuthError(Exception):
@@ -47,7 +49,8 @@ def _extract_bearer_token(request: Request) -> str:
 def authenticate_request(request: Request) -> AuthenticatedSession:
     refresh_token = _extract_bearer_token(request)
     try:
-        response = _get_workos_client().user_management.authenticate_with_refresh_token(
+        response = _get_workos_client(
+        ).user_management.authenticate_with_refresh_token(
             refresh_token=refresh_token,
             user_agent=request.headers.get("user-agent"),
             ip_address=request.client.host if request.client else None,
@@ -61,5 +64,5 @@ def authenticate_request(request: Request) -> AuthenticatedSession:
     user = response.user
     return AuthenticatedSession(
         user_id=user.id,
-        organization_id=response.organization_id,
+        user=user,
     )

@@ -35,14 +35,8 @@ export default function Onboarding() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-8">
-      <div className="flex flex-col items-center justify-center gap-2">
-
-        <BrandLogo />
-        <div className="text-muted-foreground text-sm">
-          An AI-powered writing assistant to write reports, papers, CVs, and more.
-        </div>
-      </div>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6">
+      <BrandLogo size="lg" />
       <Button onClick={handleSignIn} disabled={busy}>
         {busy ? "Signing in…" : "Sign in"}
       </Button>

@@ -1,3 +1,9 @@
+import dotenv
+
+from core.usage import validate_and_fetch_creds
+
+dotenv.load_dotenv()
+
 from pathlib import Path
 import uuid
 
@@ -26,6 +32,9 @@ class ChatRequest(BaseModel):
     dir: str
     prompt: str
     attached_image_path: str | None = None
+    openai_api_key: str | None = None
+    openai_api_base: str | None = None
+    openai_api_model: str | None = None
 
 
 app = FastAPI(title="Spartan Write - Server")
@@ -33,14 +42,15 @@ app = FastAPI(title="Spartan Write - Server")
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
-    unauthenticated_paths = {"/health"}
+    unauthenticated_paths = {"/health", "/chat"}
     if request.method == "OPTIONS" or request.url.path in unauthenticated_paths:
         return await call_next(request)
 
     try:
         request.state.auth = authenticate_request(request)
     except AuthError as exc:
-        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+        return JSONResponse(status_code=exc.status_code,
+                            content={"detail": exc.detail})
 
     return await call_next(request)
 
@@ -53,8 +63,12 @@ async def health():
 @app.post("/chat")
 async def chat(request: ChatRequest):
     try:
+        creds = agent.AgentCreds(openai_api_key=request.openai_api_key,
+                                 openai_api_base=request.openai_api_base,
+                                 openai_api_model=request.openai_api_model)
         folder_path = Path(request.dir)
-        graph = agent.create_graph(folder_path, request.attached_image_path)
+        graph = agent.create_graph(creds, folder_path,
+                                   request.attached_image_path)
         thread_id = str(uuid.uuid4())
         config = {"configurable": {"thread_id": thread_id}}
         initial_state = {"messages": [HumanMessage(content=request.prompt)]}
@@ -97,6 +111,9 @@ async def chat(request: ChatRequest):
 @app.post("/copilotkit/{path:path}")
 async def copilotkit_handler(request: Request, path: str = ""):
     """Handle both CopilotKit info/discovery and AG-UI agent execution."""
+
+    user = request.state.auth.user
+
     try:
         body = await request.json()
     except Exception:
@@ -113,7 +130,11 @@ async def copilotkit_handler(request: Request, path: str = ""):
         folder_path = Path(forwarded_props.get("folder_path", "."))
         attached_image_path = forwarded_props.get("attached_image_path", None)
 
-        graph = agent.create_graph(folder_path, attached_image_path)
+        if user is not None:
+            forwarded_props["user_id"] = user.id
+
+        creds = validate_and_fetch_creds(user)
+        graph = agent.create_graph(creds, folder_path, attached_image_path)
         agui_agent = SafeLangGraphAGUIAgent(name="0", graph=graph)
 
         accept_header = request.headers.get("accept")
