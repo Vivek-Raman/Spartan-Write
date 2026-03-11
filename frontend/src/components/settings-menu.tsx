@@ -118,7 +118,7 @@ export default function SettingsMenu({ onClose }: SettingsMenuProps) {
           <Button
             variant="ghost"
             className="w-full justify-start gap-2 text-sm"
-            onClick={() => { onClose(); navigate("/"); }}
+            onClick={() => { onClose(); navigate("/dashboard"); }}
           >
             <Home className="h-4 w-4" />
             Go to Home

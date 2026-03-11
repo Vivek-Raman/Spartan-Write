@@ -12,7 +12,7 @@
       "args": [
         "api.server:app",
         "--port",
-        "8765",
+        "8768",
       ],
       "jinja": true
     }

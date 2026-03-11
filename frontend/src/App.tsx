@@ -5,6 +5,9 @@ import Onboarding from "./pages/onboarding";
 import Home from "./pages/home";
 import Editor from "./pages/editor";
 import NewProject from "./pages/new-project";
+import Settings from "./pages/settings";
+import ErrorFatal from "./pages/error-fatal";
+import Dashboard from "./pages/dashboard";
 
 function ScreenReaderAnnouncer() {
   const { screenReader } = useAccessibility();
@@ -29,9 +32,12 @@ function App() {
       <ScreenReaderAnnouncer />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/editor" element={<Editor />} />
         <Route path="/new-project" element={<NewProject />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/error" element={<ErrorFatal />} />
       </Routes>
     </main>
   );

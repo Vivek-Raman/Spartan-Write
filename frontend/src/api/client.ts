@@ -34,8 +34,12 @@ async function request<T>(
 
 export async function health(
   options?: RequestInit,
-): Promise<ApiResponse<{ status: string; version: string }>> {
-  return request(API_ENDPOINTS.HEALTH, options);
+): Promise<{ status: string; version: string } | null> {
+  const res = await apiFetch(API_ENDPOINTS.HEALTH, options);
+  if (!res.ok) {
+    throw new Error(`HTTP error ${res.status}`);
+  }
+  return res.json();
 }
 
 export interface TemplateInfo {

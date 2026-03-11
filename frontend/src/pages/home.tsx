@@ -1,45 +1,67 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { getConfig } from "../api/client";
-import Dashboard from "../components/dashboard";
+import { getConfig, health } from "../api/client";
+
+const MAX_RETRIES = 20;
+const POLL_INTERVAL = 500;
 
 export default function Home() {
   const [returningUser, setReturningUser] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [redirectToError, setRedirectToError] = useState(false);
 
   useEffect(() => {
-    const POLL_TIMEOUT = 5000;
-    const POLL_INTERVAL = 500;
+    let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout>;
 
-    const poll = async () => {
-      const startTime = Date.now();
-
-      while (Date.now() - startTime < POLL_TIMEOUT) {
+    const run = async () => {
+      let healthOk = false;
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        if (cancelled) return;
         try {
-          const res = await getConfig();
-          const fullName = res.data?.config?.full_name;
-          setReturningUser(!!fullName);
-          setIsLoading(false);
-          return;
+          const healthRes = await health();
+          if (cancelled) return;
+          if (healthRes) {
+            healthOk = true;
+            break;
+          }
         } catch (err) {
           console.error(err);
-          await new Promise((r) => {
+        }
+        if (attempt < MAX_RETRIES - 1) {
+          await new Promise<void>((r) => {
             timeoutId = setTimeout(r, POLL_INTERVAL);
           });
         }
       }
-
-      setReturningUser(false);
+      if (!healthOk) {
+        if (!cancelled) setRedirectToError(true);
+        setIsLoading(false);
+        return;
+      }
+      if (cancelled) return;
+      try {
+        const configRes = await getConfig();
+        if (cancelled) return;
+        const fullName = configRes.data?.config?.full_name;
+        setReturningUser(!!fullName);
+      } catch (err) {
+        setReturningUser(false);
+      }
       setIsLoading(false);
     };
 
-    poll();
+    run();
 
     return () => {
+      cancelled = true;
       clearTimeout(timeoutId);
     };
   }, []);
+
+  if (redirectToError) {
+    return <Navigate to="/error" replace />;
+  }
 
   if (isLoading) {
     return (
@@ -50,8 +72,8 @@ export default function Home() {
   }
 
   if (!returningUser) {
-    return <Navigate to="/onboarding" />;
+    return <Navigate to="/onboarding" replace />;
   }
 
-  return <Dashboard />;
+  return <Navigate to="/dashboard" replace />;
 }

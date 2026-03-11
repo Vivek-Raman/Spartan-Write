@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               "Auth callback missing code or code_verifier in sessionStorage"
             );
           }
-          navigate("/editor");
+          navigate("/dashboard");
           return;
         }
       }

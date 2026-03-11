@@ -1,8 +1,12 @@
 from core.settings.common import get_config_dir
+from core.settings.first_run import is_first_run, setup_first_run
 import tomlkit
 
 
 def fetch_all() -> dict:
+    if is_first_run():
+        setup_first_run()
+
     config_dir = get_config_dir()
     config_file = config_dir / "config.toml"
     if not config_file.exists():

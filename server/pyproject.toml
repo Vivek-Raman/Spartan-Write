@@ -13,6 +13,7 @@ dependencies = [
     "copilotkit>=0.1.77",
     "langgraph>=0.2.0",
     "langchain-openai>=0.3.0",
+    "workos>=5.45.0",
 ]
 
 [project.scripts]

@@ -6,6 +6,7 @@ from ag_ui.encoder import EventEncoder
 from copilotkit import LangGraphAGUIAgent
 from core import __version__
 from core import agent
+from core.auth import AuthError, authenticate_request
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -28,6 +29,20 @@ class ChatRequest(BaseModel):
 
 
 app = FastAPI(title="Spartan Write - Server")
+
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    unauthenticated_paths = {"/health"}
+    if request.method == "OPTIONS" or request.url.path in unauthenticated_paths:
+        return await call_next(request)
+
+    try:
+        request.state.auth = authenticate_request(request)
+    except AuthError as exc:
+        return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+    return await call_next(request)
 
 
 @app.get("/health")
@@ -99,13 +114,13 @@ async def copilotkit_handler(request: Request, path: str = ""):
         attached_image_path = forwarded_props.get("attached_image_path", None)
 
         graph = agent.create_graph(folder_path, attached_image_path)
-        agent = SafeLangGraphAGUIAgent(name="0", graph=graph)
+        agui_agent = SafeLangGraphAGUIAgent(name="0", graph=graph)
 
         accept_header = request.headers.get("accept")
         encoder = EventEncoder(accept=accept_header)
 
         async def event_generator():
-            async for event in agent.run(input_data):
+            async for event in agui_agent.run(input_data):
                 yield encoder.encode(event)
 
         return StreamingResponse(event_generator(),

@@ -5,21 +5,20 @@
 init:
 	@cd sidecar && uv sync
 	@cd frontend && npm install
-	@uv run build.py --debug
+	@uv run build.py
 	@echo "Initialized project! Run 'make dev' to start the development server."
 
-server:
+sidecar:
 	@cd sidecar && uv run spartan-write-sidecar
-
-dev:
-	@uv run build.py --link-only
-	@cd frontend && npm run tauri dev
 
 build:
 	@uv run build.py
 
-build-debug:
+dev:
 	@uv run build.py --debug
+	@cd frontend && open "./src-tauri/target/debug/bundle/macos/Spartan Write.app"
+
+run:
 	@cd frontend && open "./src-tauri/target/debug/bundle/macos/Spartan Write.app"
 
 do-benchmark:

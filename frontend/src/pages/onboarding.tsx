@@ -2,10 +2,13 @@ import { useState } from "react";
 import { useAuth } from "@workos-inc/authkit-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Navigate } from "react-router-dom";
+import BrandLogo from "@/components/brand-logo";
 
 export default function Onboarding() {
-  const { signIn, getSignInUrl, isLoading } = useAuth();
+  const { signIn, getSignInUrl, isLoading, user } = useAuth();
   const [isOpening, setIsOpening] = useState(false);
+
 
   const handleSignIn = async () => {
     try {
@@ -26,9 +29,20 @@ export default function Onboarding() {
 
   const busy = isLoading || isOpening;
 
+  if (!busy && user) {
+    console.log(`Welcome, ${user.firstName} ${user.lastName}!`);
+    return <Navigate to="/dashboard" />;
+  }
+
   return (
-    <div>
-      Onboarding
+    <div className="min-h-screen flex flex-col items-center justify-center gap-8">
+      <div className="flex flex-col items-center justify-center gap-2">
+
+        <BrandLogo />
+        <div className="text-muted-foreground text-sm">
+          An AI-powered writing assistant to write reports, papers, CVs, and more.
+        </div>
+      </div>
       <Button onClick={handleSignIn} disabled={busy}>
         {busy ? "Signing in…" : "Sign in"}
       </Button>

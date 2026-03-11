@@ -23,6 +23,7 @@ pub fn run() {
                     Target::new(TargetKind::Stdout),
                     Target::new(TargetKind::Webview),
                 ])
+                .level(log::LevelFilter::Debug)
                 .build(),
         )
         .plugin(tauri_plugin_deep_link::init())
@@ -32,6 +33,8 @@ pub fn run() {
         .manage(ServerState(Mutex::new(None)))
         .setup(|app| {
             // Launch the sidecar server on startup
+            log::info!("Launching sidecar server");
+            
             let sidecar = app
                 .shell()
                 .sidecar("spartan-write-sidecar")
