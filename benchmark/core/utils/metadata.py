@@ -12,6 +12,7 @@ class BenchmarkMetadata:
     status: Optional[str] = "pending"
     error: Optional[str] = None
     chat_result: Any = None
+    scores: Dict[str, float] = field(default_factory=dict)
     extra: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -25,6 +26,7 @@ class BenchmarkMetadata:
             "status",
             "error",
             "chat_result",
+            "scores",
         }
         extra = {k: v for k, v in data.items() if k not in known_keys}
         return cls(
@@ -36,6 +38,7 @@ class BenchmarkMetadata:
             status=data.get("status", "pending"),
             error=data.get("error"),
             chat_result=data.get("chat_result"),
+            scores=data.get("scores") or {},
             extra=extra,
         )
 
@@ -44,4 +47,3 @@ class BenchmarkMetadata:
         extra = data.pop("extra", {})
         data.update(extra)
         return data
-

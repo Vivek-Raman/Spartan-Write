@@ -5,6 +5,7 @@ import click
 from pathlib import Path
 
 from core.utils import read_json, do_chat, write_json, BenchmarkMetadata
+from core.score import score_benchmark
 
 
 def run_benchmarks(context: dict) -> None:
@@ -36,7 +37,7 @@ async def _do_benchmark(context: dict, data_dir: Path) -> None:
 
         # do score
         metadata.time_score_start = _get_timestamp()
-        # TODO: determine scoring mechanism
+        score_benchmark(context, metadata)
         metadata.time_score_end = _get_timestamp()
         metadata.status = "completed"
     except Exception as e:
