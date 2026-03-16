@@ -9,6 +9,9 @@ from core.score import score_benchmark
 
 
 def run_benchmarks(context: dict) -> None:
+    params = context.get("exec_params", {})
+    iterations = params.get("iterations", 1)
+
     with click.progressbar(context["dataset"],
                            length=context["dataset_count"],
                            update_min_steps=1,
@@ -16,24 +19,29 @@ def run_benchmarks(context: dict) -> None:
         for dir_name in bar:
             click.echo("")  # new line
             data_dir = context["dir"] / "data" / dir_name
-            asyncio.run(_do_benchmark(context, data_dir))
+            for _ in range(iterations):
+                asyncio.run(_do_benchmark(context, data_dir))
     click.echo(
         "+ Benchmarking complete. Please run the dashboard to view the results."
     )
 
 
 async def _do_benchmark(context: dict, data_dir: Path) -> None:
+    params = context.get("exec_params", {})
+    do_scoring_only = params.get("do_scoring_only", False)
+
     raw_metadata = read_json(data_dir / "metadata.json")
     metadata = BenchmarkMetadata.from_dict(raw_metadata)
     summary = metadata.summary or ""
     click.echo(f"  + Test: {summary}")
 
     try:
-        # do chat
-        prompt = (data_dir / "prompt.txt").read_text()
-        metadata.time_chat_start = _get_timestamp()
-        metadata.chat_result = do_chat(context, str(data_dir), prompt)
-        metadata.time_chat_end = _get_timestamp()
+        if not do_scoring_only:
+            # do chat
+            prompt = (data_dir / "prompt.txt").read_text()
+            metadata.time_chat_start = _get_timestamp()
+            metadata.chat_result = do_chat(context, str(data_dir), prompt)
+            metadata.time_chat_end = _get_timestamp()
 
         # do score
         metadata.time_score_start = _get_timestamp()
@@ -46,6 +54,7 @@ async def _do_benchmark(context: dict, data_dir: Path) -> None:
         metadata.status = "failed"
     finally:
         write_json(data_dir / "metadata.json", metadata.to_dict())
+
 
 def _get_timestamp() -> str:
     return datetime.now(timezone.utc).isoformat()

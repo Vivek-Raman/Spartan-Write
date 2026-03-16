@@ -3,8 +3,9 @@ from pathlib import Path
 import click
 
 
-def load_dataset(context: dict, new_only: bool) -> None:
+def load_dataset(context: dict) -> None:
     click.echo("+ Loading dataset items...")
+    new_only = context['exec_params']['new_only']
 
     dataset_list = []
     path = Path(importlib.resources.files("core")).parent / "data"

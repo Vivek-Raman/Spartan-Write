@@ -114,8 +114,6 @@ async def chat(request: ChatRequest):
 async def copilotkit_handler(request: Request, path: str = ""):
     """Handle both CopilotKit info/discovery and AG-UI agent execution."""
 
-    user = request.state.auth.user
-
     try:
         body = await request.json()
     except Exception:
@@ -132,8 +130,9 @@ async def copilotkit_handler(request: Request, path: str = ""):
         folder_path = Path(forwarded_props.get("folder_path", "."))
         attached_image_path = forwarded_props.get("attached_image_path", None)
 
+        user = request.state.auth.user
         if user is not None:
-            forwarded_props["user_id"] = user.id
+            raise HTTPException(status_code=401, detail="Unauthorized")
 
         creds = validate_and_fetch_creds(user)
         graph = agent.create_graph(creds, folder_path, attached_image_path)

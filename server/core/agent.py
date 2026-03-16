@@ -9,16 +9,10 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.types import interrupt
 from copilotkit import CopilotKitState
-from pydantic import BaseModel
 
 from .local_tools import create_local_tools
-
-
-class AgentCreds(BaseModel):
-    openai_api_key: str
-    openai_api_base: str
-    openai_api_model: str
-
+from .models import AgentCreds
+from .analytics import handle_callback
 
 SYSTEM_PROMPT = dedent(
     """ You are a helpful LaTeX assistant that can read, write, and modify LaTeX files 
@@ -27,8 +21,7 @@ SYSTEM_PROMPT = dedent(
         2. Read the contents of any file
         3. Edit/write the contents of any file
         4. Compile the LaTeX project
-        5. Read the currently attached image and return bytes as base64 ASCII
-        6. Move the currently attached image into the project's figures directory
+        5. Move the currently attached image into the project's figures directory
 
         # Workflow
         When a user asks you to modify LaTeX files, you should:
@@ -86,7 +79,7 @@ SYSTEM_PROMPT = dedent(
 
 def create_model(creds: AgentCreds):
     if not creds.openai_api_key:
-        raise ValueError("OpenAI API key not configured.")
+        raise ValueError("API key not configured.")
 
     return ChatOpenAI(
         default_headers={
@@ -216,7 +209,12 @@ def create_graph(creds: AgentCreds,
 
     def call_model(state: CopilotKitState):
         messages = [SystemMessage(content=SYSTEM_PROMPT)] + state["messages"]
-        return {"messages": [model_with_tools.invoke(messages)]}
+        return {
+            "messages": [
+                model_with_tools.invoke(
+                    messages, config={"callbacks": [handle_callback(creds)]})
+            ]
+        }
 
     def should_continue_after_agent(state: CopilotKitState) -> str:
         """Route to frontend_tools if last message has tool_calls, else END."""

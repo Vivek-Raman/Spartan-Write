@@ -7,7 +7,7 @@ from pathlib import Path
 import click
 
 from core.bench import run_benchmarks
-from core.utils import locate_server, load_creds
+from core.utils import locate_server, load_creds, collect_parameters
 from core.dataset import clone_dataset, load_dataset
 from core.dashboard import main as dashboard_main
 
@@ -36,19 +36,14 @@ def cli(ctx: click.Context, dir: str | None) -> None:
 
 @cli.command()
 @click.pass_context
-@click.option(
-    "--new-only",
-    is_flag=True,
-    help=
-    "Run benchmarks for new dataset entries while preserving existing runs.",
-)
-def run(ctx: click.Context, new_only: bool) -> None:
+def run(ctx: click.Context) -> None:
     """Run benchmarks."""
     context = {}
     context["dir"] = Path(ctx.obj.get("dir"))
 
+    collect_parameters(context)
     locate_server(context)
-    load_dataset(context, new_only)
+    load_dataset(context)
     clone_dataset(context)
     load_creds(context)
     run_benchmarks(context)

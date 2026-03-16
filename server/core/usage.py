@@ -1,7 +1,7 @@
 import os
 
 from workos.types.user_management import User
-from core.agent import AgentCreds
+from .models import AgentCreds
 
 
 def validate_and_fetch_creds(user: User):
@@ -14,4 +14,5 @@ def validate_and_fetch_creds(user: User):
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         openai_api_base=os.getenv("OPENAI_API_BASE"),
         openai_api_model=os.getenv("OPENAI_API_MODEL"),
+        user_id=user.id,
     )
