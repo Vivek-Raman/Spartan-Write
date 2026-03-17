@@ -4,8 +4,8 @@ import { WORKOS_CLIENT_ID } from "@/api/auth-keys";
 export const WORKOS_ACCESS_TOKEN_KEY = "workos:access-token";
 export const WORKOS_REFRESH_TOKEN_KEY = "workos:refresh-token";
 
-/** Refresh interval: 50 min (tokens typically expire in 60 min) */
-const TOKEN_REFRESH_INTERVAL_MS = 50 * 60 * 1000;
+/** Refresh interval: 4 min (WorkOS access tokens expire in 5 min) */
+const TOKEN_REFRESH_INTERVAL_MS = 4 * 60 * 1000;
 
 export function getWorkosAccessToken(): string | null {
   return typeof window !== "undefined"

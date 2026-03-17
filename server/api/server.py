@@ -1,7 +1,5 @@
 import dotenv
 
-from core.usage import validate_and_fetch_creds
-
 dotenv.load_dotenv()
 
 from pathlib import Path
@@ -13,6 +11,7 @@ from copilotkit import LangGraphAGUIAgent
 from core import __version__
 from core import agent
 from core.auth import AuthError, authenticate_request
+from core.usage import validate_and_fetch_creds
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -131,7 +130,7 @@ async def copilotkit_handler(request: Request, path: str = ""):
         attached_image_path = forwarded_props.get("attached_image_path", None)
 
         user = request.state.auth.user
-        if user is not None:
+        if user is None:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
         creds = validate_and_fetch_creds(user)
