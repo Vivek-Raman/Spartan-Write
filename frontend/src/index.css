@@ -233,3 +233,6 @@
   min-width: 0;
 }
 
+[data-testid="copilot-chat"] {
+  min-height: 0;
+}

@@ -8,7 +8,7 @@ import {
   Message,
   MessageContent,
   MessageResponse,
-} from "../ai-elements/message";
+} from "@/components/ui/message";
 
 function AdaptedAssistantMessage(props: CopilotChatAssistantMessageProps) {
   const { message } = props;

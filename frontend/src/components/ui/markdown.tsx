@@ -4,7 +4,8 @@ import { memo, useId, useMemo } from "react"
 import ReactMarkdown, { Components } from "react-markdown"
 import remarkBreaks from "remark-breaks"
 import remarkGfm from "remark-gfm"
-import { CodeBlock, CodeBlockCode } from "./code-block"
+import type { BundledLanguage } from "shiki"
+import { CodeBlock } from "./code-block"
 
 export type MarkdownProps = {
   children: string
@@ -45,11 +46,14 @@ const INITIAL_COMPONENTS: Partial<Components> = {
     }
 
     const language = extractLanguage(className)
+    const lang = (language === "plaintext" ? "text" : language) as BundledLanguage
 
     return (
-      <CodeBlock className={className}>
-        <CodeBlockCode code={children as string} language={language} />
-      </CodeBlock>
+      <CodeBlock
+        className={className}
+        code={String(children)}
+        language={lang}
+      />
     )
   },
   pre: function PreComponent({ children }) {

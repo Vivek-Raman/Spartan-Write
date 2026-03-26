@@ -1,6 +1,6 @@
 import { useFrontendTool } from "@copilotkit/react-core";
-import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "../ai-elements/tool";
-import { CodeBlock } from "../ai-elements/code-block";
+import { CodeBlock } from "@/components/ui/code-block";
+import { Tool, ToolContent, ToolHeader, ToolInput, ToolOutput } from "@/components/ui/tool";
 import { getFileContent } from "@/api/client";
 
 export default function useReadFileTool(dir: string) {

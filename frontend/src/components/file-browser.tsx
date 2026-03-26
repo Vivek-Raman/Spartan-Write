@@ -13,7 +13,7 @@ import {
   FileTree,
   FileTreeFile,
   FileTreeFolder,
-} from "@/components/ai-elements/file-tree";
+} from "@/components/ui/file-tree";
 
 interface FileBrowserProps {
   onFileSelect?: (file: string) => void;

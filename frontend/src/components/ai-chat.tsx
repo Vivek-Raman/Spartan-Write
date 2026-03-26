@@ -1,6 +1,7 @@
 import { CopilotChat } from "@copilotkit/react-core/v2";
 import MessageViewAdapter from "./ai-component-adapters/message-view";
 import InputViewAdapter from "./ai-component-adapters/input-view";
+import ScrollViewAdapter from "./ai-component-adapters/scroll-view";
 import { useImageForAIChat } from "@/contexts/image-for-ai-chat-context";
 import { useEditor } from "@/contexts/editor-context";
 import UploadedImageItem from "./uploaded-image-item";
@@ -23,23 +24,14 @@ export default function AIChat() {
   // useReadAttachedImageTool(uploadedImageData?.image_bytes ?? null);
 
   return (
-    <div className="ai-chat-panel flex h-full min-w-0 w-full flex-col bg-background">
-      <div className="flex min-w-0 flex-1 flex-col p-2 mb-2">
+    <div className="ai-chat-panel flex h-full min-h-0 min-w-0 w-full flex-col bg-background">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden p-2 mb-2">
         <CopilotChat
-          className="flex min-w-0 h-full w-full flex-col"
+          className="flex min-h-0 min-w-0 w-full flex-1 flex-col overflow-hidden"
           welcomeScreen={false}
           messageView={MessageViewAdapter}
-          // TODO: Add suggestions
-          // suggestionView={{
-          //   suggestions: [
-          //     {
-          //       title: "Title 1",
-          //       message: "Message 1",
-          //       isLoading: false,
-          //     }
-          //   ]
-          // }}
           input={InputViewAdapter}
+          scrollView={ScrollViewAdapter}
         ></CopilotChat>
       </div>
       {uploadedImageData ? (
