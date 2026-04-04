@@ -4,6 +4,7 @@ import sys
 import threading
 import time
 
+import httpx
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
@@ -74,12 +75,50 @@ class MoveImageToProjectRequest(BaseModel):
     target_dir: str = "figures"
 
 
+class UsageInfoRequest(BaseModel):
+    user_id: str
+    n_days_window: int | None = None
+
+
+SPARTAN_SERVER_URL = os.getenv("SPARTAN_SERVER_URL", "http://127.0.0.1:8767")
+
+
 app = FastAPI(title="Spartain Write - Sidecar")
 
 
 @app.get("/health")
 async def health():
     return {"status": "ok", "version": __version__}
+
+
+@app.post("/usage-info")
+async def usage_info_proxy(request: UsageInfoRequest):
+    body = request.model_dump(exclude_none=True)
+    url = f"{SPARTAN_SERVER_URL.rstrip('/')}/usage-info"
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(url, json=body)
+    except httpx.RequestError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Server request failed: {e}",
+        ) from e
+
+    if not resp.is_success:
+        try:
+            err = resp.json()
+            detail = err.get("detail", str(err))
+        except Exception:
+            detail = (resp.text or resp.reason_phrase)[:2000]
+        raise HTTPException(status_code=resp.status_code, detail=detail)
+
+    try:
+        return resp.json()
+    except Exception:
+        raise HTTPException(
+            status_code=502,
+            detail="Invalid JSON from server",
+        )
 
 
 @app.get("/templates")

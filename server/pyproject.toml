@@ -16,6 +16,7 @@ dependencies = [
     "workos>=5.45.0",
     "dotenv>=0.9.9",
     "posthog>=7.9.12",
+    "httpx>=0.28.0",
 ]
 
 [project.scripts]

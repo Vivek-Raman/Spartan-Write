@@ -63,7 +63,13 @@ export default function TopNavigation({ activeTab, onTabChange, onCompile, canCo
             </Link>
           </Button>
         )}
-        <BrandLogo />
+        <Link
+          to="/dashboard"
+          className="inline-flex items-center rounded-md outline-offset-2 transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-ring"
+          aria-label="Go to dashboard"
+        >
+          <BrandLogo />
+        </Link>
 
         {activeTab !== undefined && onTabChange && (
           <div className="inline-flex h-8 items-center rounded-lg bg-muted p-1 text-muted-foreground">

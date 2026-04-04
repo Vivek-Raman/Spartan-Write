@@ -66,9 +66,9 @@ SYSTEM_PROMPT = dedent(
         - The project should have a `sections/` directory.
           Sections are referenced in the main.tex file using \\input{sections/section_name}.
           All of the text content goes in the sections.
-          If there are subsections, each subsection should be in a separate file.
-          For example, for section "1.1 Introduction", the file should be called `1_1_introduction.tex`.
-          Then, `1_1_introduction.tex` is imported in main.tex using \\input{sections/1_1_introduction}.
+          If there are subsections, each subsection MUST be in a separate file. Use the tools to rearrange the files as text is added.
+          For example, for section "1.1 Introduction", the file should be called `introduction.tex`.
+          Then, `introduction.tex` is imported in main.tex using \\input{sections/introduction}.
 
         If you understand, reply with "Let's get started!"
 

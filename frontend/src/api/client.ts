@@ -216,3 +216,18 @@ export async function updateFileContent(
     },
   );
 }
+
+export async function fetchUsageInfo(
+  userId: string,
+  nDaysWindow?: number,
+  options?: RequestInit,
+): Promise<ApiResponse<unknown>> {
+  return request(API_ENDPOINTS.USAGE_INFO, {
+    method: "POST",
+    body: JSON.stringify({
+      user_id: userId,
+      ...(nDaysWindow !== undefined ? { n_days_window: nDaysWindow } : {}),
+    }),
+    ...options,
+  });
+}

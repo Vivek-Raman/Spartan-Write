@@ -59,7 +59,8 @@ export default function NewProject() {
 
       <div className="flex flex-1 overflow-hidden p-6 gap-8">
         {/* Template grid */}
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex flex-col items-center justify-center gap-6">
+          <h2 className="text-lg font-semibold text-center">Select a template to start off with</h2>
           <div className="grid grid-cols-3 gap-3" style={{ gridTemplateRows: "repeat(2, 12rem)" }}>
             {templates.map((template) => (
               <Card

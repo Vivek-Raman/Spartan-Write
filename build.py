@@ -3,10 +3,11 @@
 Build script for Spartan Write.
 
 This script:
-1. Builds the CLI wheel using uv
-2. Creates a PyInstaller executable with target triple naming
-3. Copies the sidecar to gui/src-tauri/bin/
-4. Runs tauri build to generate the final app bundle
+1. Updates git submodules from their remotes
+2. Builds the CLI wheel using uv
+3. Creates a PyInstaller executable with target triple naming
+4. Copies the sidecar to gui/src-tauri/bin/
+5. Runs tauri build to generate the final app bundle
 """
 print("Starting build script...")
 
@@ -142,6 +143,22 @@ def run(cmd: list[str],
     return subprocess.run(cmd, cwd=cwd, check=check)
 
 
+def update_submodules() -> None:
+    """Fetch and check out the latest submodule commits from each remote."""
+    print("\n=== Updating git submodules ===")
+    run(
+        [
+            "git",
+            "submodule",
+            "update",
+            "--init",
+            "--remote",
+            "--recursive",
+        ],
+        cwd=ROOT,
+    )
+
+
 def build_wheel() -> Path:
     """Build the CLI wheel and return path to the .whl file."""
     print("\n=== Building CLI wheel ===")
@@ -245,13 +262,14 @@ def build_tauri_debug():
 def main():
     print("=== Spartan Write build script ===")
 
+    update_submodules()
+
     target_triple = get_target_triple()
     print(f"+ Target triple: {target_triple}")
 
-    # Download tectonic if --link-only is absent OR binary is missing
     tectonic_sidecar = SIDECAR_BIN_DIR / get_tectonic_sidecar_name(
         target_triple)
-    if "--link-only" not in sys.argv or not tectonic_sidecar.exists():
+    if not tectonic_sidecar.exists():
         download_tectonic(target_triple)
 
     # Step 1: Build wheel
@@ -264,11 +282,10 @@ def main():
     copy_sidecar(exe_path, target_triple)
 
     # Step 4: Build Tauri app
-    if "--link-only" not in sys.argv:
-        if "--debug" in sys.argv:
-            build_tauri_debug()
-        else:
-            build_tauri_release()
+    if "--debug" in sys.argv:
+        build_tauri_debug()
+    else:
+        build_tauri_release()
 
     print("\n=== Build complete ===")
 

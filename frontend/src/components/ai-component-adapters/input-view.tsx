@@ -40,7 +40,8 @@ function AdaptedInputView(props: CopilotChatInputProps) {
       <PromptInputBody>
         <PromptInputTextarea placeholder="What can I help you with?" />
       </PromptInputBody>
-      <PromptInputFooter>
+      <PromptInputFooter className="flex justify-between">
+        <div></div>
         <PromptInputSubmit status={status} onStop={onStop} />
       </PromptInputFooter>
     </PromptInput>
@@ -50,12 +51,14 @@ function AdaptedInputView(props: CopilotChatInputProps) {
     return input;
   }
 
+  // In-flow footer (used with CopilotChat `children` layout in ai-chat.tsx) so the
+  // prompt sits directly under the suggestion row instead of overlaying it.
   return (
     <div
       data-copilotkit
       ref={containerRef}
       className={cn(
-        "absolute bottom-0 left-0 right-0 z-20 min-w-0 pointer-events-none",
+        "z-20 min-w-0 w-full shrink-0 pointer-events-none",
         className,
       )}
       style={{
@@ -63,7 +66,7 @@ function AdaptedInputView(props: CopilotChatInputProps) {
         transition: "transform 0.2s ease-out",
       }}
     >
-      <div className="pointer-events-auto mx-auto max-w-3xl px-4 sm:px-0">
+      <div className="pointer-events-auto mx-auto max-w-3xl px-4 sm:px-0 pb-2">
         {input}
       </div>
     </div>

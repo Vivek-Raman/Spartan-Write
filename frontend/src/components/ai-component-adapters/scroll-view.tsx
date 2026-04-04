@@ -1,7 +1,33 @@
 import { CopilotChatView } from "@copilotkit/react-core/v2";
 import { cn } from "@/lib/utils";
 import type { CSSProperties, ReactElement, ReactNode } from "react";
-import { cloneElement, isValidElement } from "react";
+import { Children, cloneElement, isValidElement } from "react";
+
+/**
+ * CopilotKit nests suggestions after the message list inside the scroll region.
+ * We strip them here so the chat can render suggestions in a footer above the input
+ * (see CopilotChat `children` layout in ai-chat.tsx).
+ */
+function stripSuggestionsFromScrollContent(children: ReactNode): ReactNode {
+  if (!isValidElement(children)) return children;
+  type InnerProps = { children?: ReactNode; className?: string };
+  const outer = children as ReactElement<{ children?: ReactNode }>;
+  const inner = outer.props.children;
+  if (!isValidElement(inner)) return children;
+  const innerEl = inner as ReactElement<InnerProps>;
+  const innerChildren = Children.toArray(innerEl.props.children).filter(
+    (c) => c != null,
+  );
+  if (innerChildren.length <= 1) return children;
+  const messagesOnly = innerChildren[0];
+  return cloneElement(outer, {
+    ...outer.props,
+    children: cloneElement(innerEl, {
+      ...innerEl.props,
+      children: messagesOnly,
+    }),
+  });
+}
 
 /** Minimum space under the message list (beyond measured input height). */
 const MIN_BOTTOM_PADDING_PX = 24;
@@ -45,7 +71,10 @@ function AdaptedScrollView(props: React.ComponentProps<typeof CopilotChatView.Sc
       className={cn("min-h-0 flex-1", className)}
       inputContainerHeight={inputContainerHeight}
     >
-      {reduceScrollContentPaddingBottom(children, inputContainerHeight)}
+      {reduceScrollContentPaddingBottom(
+        stripSuggestionsFromScrollContent(children),
+        inputContainerHeight,
+      )}
     </CopilotChatView.ScrollView>
   );
 }
