@@ -6,6 +6,7 @@ import { ThemeProvider } from "./contexts/theme-context";
 import { AccessibilityProvider } from "./contexts/accessibility-context";
 import { AuthProvider } from "./contexts/auth-context";
 import { SettingsProvider } from "./contexts/settings-context";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import "./index.css";
 import "@copilotkit/react-core/v2/styles.css";
 
@@ -35,7 +36,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <AccessibilityProvider>
           <SettingsProvider>
             <AuthProvider>
-              <App />
+              <TooltipProvider>
+                <App />
+              </TooltipProvider>
             </AuthProvider>
           </SettingsProvider>
         </AccessibilityProvider>

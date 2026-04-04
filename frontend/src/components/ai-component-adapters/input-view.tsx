@@ -8,11 +8,13 @@ import {
 import {
   PromptInput,
   PromptInputBody,
+  PromptInputClearChat,
   PromptInputFooter,
   PromptInputSubmit,
   PromptInputTextarea,
 } from "@/components/ui/prompt-input";
 import { cn } from "@/lib/utils";
+import { useCallback } from "react";
 
 function AdaptedInputView(props: CopilotChatInputProps) {
   const {
@@ -32,6 +34,13 @@ function AdaptedInputView(props: CopilotChatInputProps) {
 
   const status = agent.isRunning ? "streaming" : "ready";
 
+  const handleClearChat = useCallback(() => {
+    if (agent.isRunning) {
+      onStop?.();
+    }
+    agent.setMessages([]);
+  }, [agent, onStop]);
+
   const input = (
     <PromptInput
       maxFiles={0}
@@ -41,8 +50,11 @@ function AdaptedInputView(props: CopilotChatInputProps) {
         <PromptInputTextarea placeholder="What can I help you with?" />
       </PromptInputBody>
       <PromptInputFooter className="flex justify-between">
-        <div></div>
-        <PromptInputSubmit status={status} onStop={onStop} />
+        <div />
+        <div className="flex items-center gap-1">
+          <PromptInputClearChat onClearChat={handleClearChat} />
+          <PromptInputSubmit status={status} onStop={onStop} />
+        </div>
       </PromptInputFooter>
     </PromptInput>
   );

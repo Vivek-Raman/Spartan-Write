@@ -44,6 +44,7 @@ import type { ChatStatus, FileUIPart, SourceDocumentUIPart } from "ai";
 import {
   CornerDownLeftIcon,
   ImageIcon,
+  MessageSquarePlus,
   Monitor,
   PlusIcon,
   SquareIcon,
@@ -370,6 +371,18 @@ export const PromptInputProvider = ({
 // ============================================================================
 
 const LocalAttachmentsContext = createContext<AttachmentsContext | null>(null);
+
+const PromptInputClearChatContext = createContext<(() => void) | null>(null);
+
+export const usePromptInputClearChat = () => {
+  const clear = useContext(PromptInputClearChatContext);
+  if (!clear) {
+    throw new Error(
+      "usePromptInputClearChat must be used within a PromptInput (e.g. from PromptInputClearChat)."
+    );
+  }
+  return clear;
+};
 
 export const usePromptInputAttachments = () => {
   // Prefer local context (inside PromptInput) as it has validation, fall back to provider
@@ -713,6 +726,15 @@ export const PromptInput = ({
     clearReferencedSources();
   }, [clearAttachments, clearReferencedSources]);
 
+  const clearFullPrompt = useCallback(() => {
+    clear();
+    if (usingProvider) {
+      controller?.textInput.clear();
+    } else {
+      formRef.current?.reset();
+    }
+  }, [clear, usingProvider, controller]);
+
   // Let provider know about our hidden file input so external menus can call openFileDialog()
   useEffect(() => {
     if (!usingProvider) {
@@ -935,7 +957,9 @@ export const PromptInput = ({
   // Always provide LocalAttachmentsContext so children get validated add function
   return (
     <LocalAttachmentsContext.Provider value={attachmentsCtx}>
-      {withReferencedSources}
+      <PromptInputClearChatContext.Provider value={clearFullPrompt}>
+        {withReferencedSources}
+      </PromptInputClearChatContext.Provider>
     </LocalAttachmentsContext.Provider>
   );
 };
@@ -1211,6 +1235,40 @@ export const PromptInputActionMenuItem = ({
 export type PromptInputSubmitProps = ComponentProps<typeof InputGroupButton> & {
   status?: ChatStatus;
   onStop?: () => void;
+};
+
+export type PromptInputClearChatProps = Omit<
+  PromptInputButtonProps,
+  "children" | "onClick"
+> & {
+  /** Called before the prompt field is cleared (e.g. stop agent and clear messages). */
+  onClearChat?: () => void;
+};
+
+export const PromptInputClearChat = ({
+  onClearChat,
+  tooltip = "Clear chat",
+  className,
+  ...props
+}: PromptInputClearChatProps) => {
+  const clearPrompt = usePromptInputClearChat();
+
+  const handleClick = useCallback(() => {
+    onClearChat?.();
+    clearPrompt();
+  }, [onClearChat, clearPrompt]);
+
+  return (
+    <PromptInputButton
+      aria-label="Clear chat"
+      className={className}
+      onClick={handleClick}
+      tooltip={tooltip}
+      {...props}
+    >
+      <MessageSquarePlus className="size-4" />
+    </PromptInputButton>
+  );
 };
 
 export const PromptInputSubmit = ({
