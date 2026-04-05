@@ -35,11 +35,20 @@ def cli(ctx: click.Context, dir: str | None) -> None:
 
 
 @cli.command()
+@click.option(
+    "--model",
+    type=str,
+    required=True,
+    help=
+    "Model name to benchmark (e.g. gpt-4o). Results go under <dir>/<model>/data/.",
+)
 @click.pass_context
-def run(ctx: click.Context) -> None:
+def run(ctx: click.Context, model: str) -> None:
     """Run benchmarks."""
     context = {}
     context["dir"] = Path(ctx.obj.get("dir"))
+    context["model"] = model
+    context["model_dir"] = context["dir"] / model.replace("/", "--")
 
     collect_parameters(context)
     locate_server(context)

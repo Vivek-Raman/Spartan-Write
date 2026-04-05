@@ -13,7 +13,9 @@
       "args": [
         "--dir",
         "${workspaceFolder}/temp",
-        "run"
+        "run",
+        "--model",
+        "gpt-4o"
       ],
       "console": "integratedTerminal"
     }

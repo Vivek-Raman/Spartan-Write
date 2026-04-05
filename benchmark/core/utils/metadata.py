@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict, field
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -13,6 +13,7 @@ class BenchmarkMetadata:
     error: Optional[str] = None
     chat_result: Any = None
     scores: Dict[str, float] = field(default_factory=dict)
+    runs: Optional[List[Dict[str, Any]]] = None
     extra: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
@@ -27,8 +28,12 @@ class BenchmarkMetadata:
             "error",
             "chat_result",
             "scores",
+            "runs",
         }
         extra = {k: v for k, v in data.items() if k not in known_keys}
+        runs = data.get("runs")
+        if runs is not None and not isinstance(runs, list):
+            runs = None
         return cls(
             summary=data.get("summary", ""),
             time_chat_start=data.get("time_chat_start"),
@@ -39,6 +44,7 @@ class BenchmarkMetadata:
             error=data.get("error"),
             chat_result=data.get("chat_result"),
             scores=data.get("scores") or {},
+            runs=runs,
             extra=extra,
         )
 
@@ -46,4 +52,6 @@ class BenchmarkMetadata:
         data = asdict(self)
         extra = data.pop("extra", {})
         data.update(extra)
+        if not data.get("runs"):
+            data.pop("runs", None)
         return data

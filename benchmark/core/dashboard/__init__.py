@@ -4,11 +4,12 @@ from pathlib import Path
 from streamlit.web import cli as stcli
 
 from .loader import load_dashboard
-from .models import DashboardRow, DashboardSummary
+from .models import DashboardRow, DashboardRun, DashboardSummary
 from .render import render_dashboard
 
 __all__ = [
     "DashboardRow",
+    "DashboardRun",
     "DashboardSummary",
     "load_dashboard",
     "render_dashboard",

@@ -14,7 +14,7 @@ def clone_dataset(context: dict) -> None:
         for dataset in bar:
             source = Path(
                 importlib.resources.files("core")).parent / "data" / dataset
-            destination = context["dir"] / "data" / dataset
+            destination = context["model_dir"] / "data" / dataset
             destination.mkdir(parents=True, exist_ok=True)
             shutil.copytree(source, destination, dirs_exist_ok=True)
 

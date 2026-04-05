@@ -30,8 +30,12 @@ dev:
 run:
 	@cd frontend && open "./src-tauri/target/debug/bundle/macos/Spartan Write.app"
 
+# Apple ships GNU Make 3.81, which does not put argv after `--` into MAKECMDGOALS, so
+# `make do-benchmark -- --model=...` cannot forward the model. Pass the model explicitly:
+#   make do-benchmark MODEL='qwen/qwen3.6-plus:free'
+# Extra goals are still appended for newer Make / other flags.
 do-benchmark:
-	@cd benchmark && uv run benchmark --dir temp run $(filter-out $@,$(MAKECMDGOALS))
+	@cd benchmark && uv run benchmark --dir temp run $(if $(MODEL),--model $(MODEL),) $(filter-out $@,$(MAKECMDGOALS))
 
 dashboard:
 	@cd benchmark && uv run dashboard --dir temp

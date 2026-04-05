@@ -12,15 +12,15 @@ Benchmark tooling and dataset runner for the Spartan-Write project.
 - **Commands**
   - **`run`**: Run benchmarks.
     - **Flags**
-      - **`--new-only`**: Run benchmarks only for new dataset entries (preserves existing runs).
-  - **`dashboard`**: Serve the Streamlit dashboard for benchmark results.
+      - **`--model <NAME>`** (required): Model id used for `/chat` and for the results folder `<dir>/<model>/data/`.
+  - **`dashboard`**: Serve the Streamlit dashboard. Point **`--dir` at the parent workdir** (the same path you pass to `run`) so the dashboard can load every `<dir>/<model>/data/` tree.
 
 Examples:
 
 ```bash
-uv run benchmark --dir /path/to/benchmark run
-uv run benchmark --dir /path/to/benchmark run --new-only
+uv run benchmark --dir /path/to/benchmark run --model gpt-4o
 uv run benchmark --dir /path/to/benchmark dashboard
+uv run dashboard --dir /path/to/benchmark
 ```
 
 ### `dashboard`

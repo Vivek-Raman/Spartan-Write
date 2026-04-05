@@ -18,7 +18,7 @@ def load_dataset(context: dict) -> None:
     if new_only:
         to_remove = []
         for dataset in dataset_list:
-            if (context["dir"] / "data" / dataset).exists():
+            if (context["model_dir"] / "data" / dataset).exists():
                 to_remove.append(dataset)
         for dataset in to_remove:
             dataset_list.remove(dataset)

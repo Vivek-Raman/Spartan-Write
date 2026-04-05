@@ -943,7 +943,7 @@ export const PromptInput = ({
         ref={formRef}
         {...props}
       >
-        <InputGroup>{children}</InputGroup>
+        <InputGroup className="shadow-none">{children}</InputGroup>
       </form>
     </>
   );

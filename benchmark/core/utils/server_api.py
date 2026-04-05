@@ -31,6 +31,7 @@ def do_chat(context: dict, dir: str, prompt: str) -> dict:
         json={
             "dir": dir,
             "prompt": prompt,
+            "model": context.get("model"),
             "openai_api_key": context['openai_api_key'],
             "openai_api_base": context['openai_api_base'],
             "openai_api_model": context['openai_api_model'],
