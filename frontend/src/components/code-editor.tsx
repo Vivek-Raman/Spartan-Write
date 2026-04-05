@@ -15,12 +15,11 @@ export default function CodeEditor({
   language = "latex",
   theme: propTheme,
 }: CodeEditorProps) {
-  const { fileContent, currentFile, saveFile, loading, compileError, clearCompileError } = useEditor();
+  const { fileContent, currentFile, saveFile, loading } = useEditor();
   const { isDark } = useTheme();
   const { editorFontSize, showLineNumbers } = useSettings();
   const [localContent, setLocalContent] = useState<string>("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
-  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const editorRef = useRef<any>(null);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
@@ -280,15 +279,6 @@ export default function CodeEditor({
           >
             {saveStatus === "saving" ? "Saving..." : "Save"}
           </Button>
-          {compileError && (
-            <button
-              type="button"
-              onClick={() => setIsErrorDialogOpen(true)}
-              className="px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded-full border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
-            >
-              Error
-            </button>
-          )}
           <div className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border rounded-full text-muted-foreground">
             {currentFile || "No file"}
           </div>
@@ -314,33 +304,6 @@ export default function CodeEditor({
           }}
         />
       </div>
-
-      {compileError && isErrorDialogOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
-          <div className="bg-popover text-popover-foreground max-w-lg w-[90%] rounded-lg border shadow-lg">
-            <div className="px-4 py-3 border-b">
-              <h2 className="text-sm font-semibold">Compilation Error</h2>
-            </div>
-            <div className="max-h-80 overflow-auto px-4 py-3">
-              <pre className="whitespace-pre-wrap text-xs font-mono text-muted-foreground">
-                {compileError}
-              </pre>
-            </div>
-            <div className="flex justify-end gap-2 px-4 py-3 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  clearCompileError();
-                  setIsErrorDialogOpen(false);
-                }}
-              >
-                Dismiss
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );

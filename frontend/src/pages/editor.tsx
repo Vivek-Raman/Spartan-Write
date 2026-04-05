@@ -40,7 +40,7 @@ function CompileOnAgentIdle({
 }
 
 function EditorContent() {
-  const { currentFile, compileAndRefresh, loadFile, dir } = useEditor();
+  const { currentFile, compileAndRefresh, loadFile, dir, compileError, clearCompileError } = useEditor();
   const { uploadedImageData } = useImageForAIChat();
   const [activeTab, setActiveTab] = useState<"preview" | "source">("preview");
   const token = useTokenRefresh();
@@ -59,7 +59,14 @@ function EditorContent() {
       showDevConsole={false}>
       <CompileOnAgentIdle compileAndRefresh={compileAndRefresh} />
       <div className="flex flex-col h-screen overflow-hidden">
-        <TopNavigation activeTab={activeTab} onTabChange={setActiveTab} onCompile={compileAndRefresh} canCompile={!!dir} />
+        <TopNavigation
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onCompile={compileAndRefresh}
+          canCompile={!!dir}
+          compileError={compileError}
+          onClearCompileError={clearCompileError}
+        />
 
         {/* Main Content Area */}
         <div className="flex flex-1 overflow-hidden">

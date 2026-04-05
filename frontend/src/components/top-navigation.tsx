@@ -1,27 +1,33 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ArrowLeft, HelpCircle, Settings, Moon, Sun, Play } from "lucide-react";
+import { Accessibility, ArrowLeft, Settings, Play } from "lucide-react";
 import BrandLogo from "./brand-logo";
 import { Button } from "@/components/ui/button";
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import AccessibilityMenu from "./accessibility-menu";
-import { useTheme } from "@/contexts/theme-context";
 
 interface TopNavigationProps {
   activeTab?: "preview" | "source";
   onTabChange?: (tab: "preview" | "source") => void;
   onCompile?: () => Promise<void>;
   canCompile?: boolean;
+  compileError?: string | null;
+  onClearCompileError?: () => void;
 }
 
-export default function TopNavigation({ activeTab, onTabChange, onCompile, canCompile }: TopNavigationProps = {}) {
+export default function TopNavigation({
+  activeTab,
+  onTabChange,
+  onCompile,
+  canCompile,
+  compileError,
+  onClearCompileError,
+}: TopNavigationProps = {}) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isDark, toggleTheme } = useTheme();
   const isSettingsPage = location.pathname === "/settings";
   const [isCompiling, setIsCompiling] = useState(false);
   const [showAccessibilityMenu, setShowAccessibilityMenu] = useState(false);
-  const accessibilityMenuRef = useRef<HTMLDivElement>(null);
-  const helpButtonRef = useRef<HTMLButtonElement>(null);
+  const [isCompileErrorDialogOpen, setIsCompileErrorDialogOpen] = useState(false);
 
   const handleCompile = async () => {
     if (!onCompile) return;
@@ -34,22 +40,8 @@ export default function TopNavigation({ activeTab, onTabChange, onCompile, canCo
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        accessibilityMenuRef.current &&
-        !accessibilityMenuRef.current.contains(event.target as Node) &&
-        helpButtonRef.current &&
-        !helpButtonRef.current.contains(event.target as Node)
-      ) {
-        setShowAccessibilityMenu(false);
-      }
-    };
-
-    if (showAccessibilityMenu) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [showAccessibilityMenu]);
+    if (!compileError) setIsCompileErrorDialogOpen(false);
+  }, [compileError]);
 
   return (
     <div className="h-12 border-b bg-background flex items-center justify-between px-4">
@@ -103,40 +95,29 @@ export default function TopNavigation({ activeTab, onTabChange, onCompile, canCo
           </Button>
         )}
 
-        <div className="relative">
+        {compileError && (
+          <button
+            type="button"
+            onClick={() => setIsCompileErrorDialogOpen(true)}
+            className="px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider rounded-full border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors"
+          >
+            Error
+          </button>
+        )}
+
+        <AccessibilityMenu
+          open={showAccessibilityMenu}
+          onOpenChange={setShowAccessibilityMenu}
+        >
           <Button
-            ref={helpButtonRef}
             variant="ghost"
             size="icon"
             className="h-8 w-8 cursor-pointer"
             title="Accessibility"
-            onClick={() =>
-              setShowAccessibilityMenu(!showAccessibilityMenu)
-            }
           >
-            <HelpCircle className="h-4 w-4" />
+            <Accessibility className="h-4 w-4" />
           </Button>
-          {showAccessibilityMenu && (
-            <div
-              ref={accessibilityMenuRef}
-              className="absolute right-0 top-10 z-50 max-h-[min(85vh,calc(100vh-3rem))] overflow-y-auto overflow-x-hidden"
-            >
-              <AccessibilityMenu
-                onClose={() => setShowAccessibilityMenu(false)}
-              />
-            </div>
-          )}
-        </div>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8"
-          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
-          onClick={toggleTheme}
-        >
-          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </Button>
+        </AccessibilityMenu>
 
         <Button variant="ghost" size="icon" className="h-8 w-8" title="Settings" asChild>
           <Link to="/settings">
@@ -144,6 +125,33 @@ export default function TopNavigation({ activeTab, onTabChange, onCompile, canCo
           </Link>
         </Button>
       </div>
+
+      {compileError && isCompileErrorDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/60 backdrop-blur-sm">
+          <div className="bg-popover text-popover-foreground max-w-lg w-[90%] rounded-lg border shadow-lg">
+            <div className="px-4 py-3 border-b">
+              <h2 className="text-sm font-semibold">Compilation Error</h2>
+            </div>
+            <div className="max-h-80 overflow-auto px-4 py-3">
+              <pre className="whitespace-pre-wrap text-xs font-mono text-muted-foreground">
+                {compileError}
+              </pre>
+            </div>
+            <div className="flex justify-end gap-2 px-4 py-3 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onClearCompileError?.();
+                  setIsCompileErrorDialogOpen(false);
+                }}
+              >
+                Dismiss
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

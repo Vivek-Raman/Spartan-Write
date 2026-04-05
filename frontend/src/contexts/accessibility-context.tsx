@@ -14,8 +14,6 @@ function clampPdfZoomPercent(value: number): number {
 interface AccessibilityContextValue {
   textSize: TextSize;
   setTextSize: (size: TextSize) => void;
-  highContrast: boolean;
-  toggleHighContrast: () => void;
   screenReader: boolean;
   toggleScreenReader: () => void;
   magnifier: boolean;
@@ -41,19 +39,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       }
     }
     return "medium";
-  });
-
-  const [highContrast, setHighContrast] = useState<boolean>(() => {
-    const stored = localStorage.getItem(ACCESSIBILITY_STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        return parsed.highContrast || false;
-      } catch {
-        return false;
-      }
-    }
-    return false;
   });
 
   const [screenReader, setScreenReader] = useState<boolean>(() => {
@@ -103,19 +88,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     root.setAttribute("data-text-size", size);
   };
 
-  const toggleHighContrast = () => {
-    setHighContrast((prev) => {
-      const newValue = !prev;
-      const root = document.documentElement;
-      if (newValue) {
-        root.classList.add("high-contrast");
-      } else {
-        root.classList.remove("high-contrast");
-      }
-      return newValue;
-    });
-  };
-
   const toggleScreenReader = () => {
     setScreenReader((prev) => !prev);
   };
@@ -136,21 +108,17 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const settings = {
       textSize,
-      highContrast,
       screenReader,
       magnifier,
       pdfZoomPercent,
     };
     localStorage.setItem(ACCESSIBILITY_STORAGE_KEY, JSON.stringify(settings));
-  }, [textSize, highContrast, screenReader, magnifier, pdfZoomPercent]);
+  }, [textSize, screenReader, magnifier, pdfZoomPercent]);
 
   // Apply initial settings
   useEffect(() => {
     const root = document.documentElement;
     root.setAttribute("data-text-size", textSize);
-    if (highContrast) {
-      root.classList.add("high-contrast");
-    }
   }, []);
 
   // Apply magnifier effect
@@ -168,8 +136,6 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
       value={{
         textSize,
         setTextSize,
-        highContrast,
-        toggleHighContrast,
         screenReader,
         toggleScreenReader,
         magnifier,
