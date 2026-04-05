@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft, HelpCircle, Settings, Moon, Sun, Play } from "lucide-react";
 import BrandLogo from "./brand-logo";
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,11 @@ interface TopNavigationProps {
   canCompile?: boolean;
 }
 
-type SettingsLocationState = { editorSearch?: string };
-
 export default function TopNavigation({ activeTab, onTabChange, onCompile, canCompile }: TopNavigationProps = {}) {
   const location = useLocation();
+  const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
   const isSettingsPage = location.pathname === "/settings";
-  const editorSearchFromState = (location.state as SettingsLocationState | null)?.editorSearch ?? "";
   const [isCompiling, setIsCompiling] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const settingsMenuRef = useRef<HTMLDivElement>(null);
@@ -57,10 +55,14 @@ export default function TopNavigation({ activeTab, onTabChange, onCompile, canCo
     <div className="h-12 border-b bg-background flex items-center justify-between px-4">
       <div className="flex items-center gap-4">
         {isSettingsPage && (
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title="Back to editor" asChild>
-            <Link to={{ pathname: "/editor", search: editorSearchFromState }}>
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+            title="Back"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-4 w-4" />
           </Button>
         )}
         <Link
@@ -130,10 +132,7 @@ export default function TopNavigation({ activeTab, onTabChange, onCompile, canCo
         </Button>
 
         <Button variant="ghost" size="icon" className="h-8 w-8" title="Settings" asChild>
-          <Link
-            to="/settings"
-            state={location.pathname === "/editor" ? { editorSearch: location.search } : undefined}
-          >
+          <Link to="/settings">
             <Settings className="h-4 w-4" />
           </Link>
         </Button>

@@ -6,6 +6,16 @@ from pathlib import Path
 from langchain_core.tools import tool
 
 
+def _resolved_under_root(root: Path, relative: str) -> Path:
+    root_r = root.resolve()
+    candidate = (root_r / relative).resolve()
+    try:
+        candidate.relative_to(root_r)
+    except ValueError as e:
+        raise ValueError(f"Path escapes project root: {relative!r}") from e
+    return candidate
+
+
 def create_local_tools(folder_path: Path, attached_image_path: str | None):
     """Create tools bound to a specific folder path."""
 
@@ -41,6 +51,53 @@ def create_local_tools(folder_path: Path, attached_image_path: str | None):
             return f"Successfully updated '{file_path}'."
         except Exception as e:
             return f"Error writing to file '{file_path}': {str(e)}"
+
+    @tool
+    def delete_file_tool(file_path: str) -> str:
+        """Delete a file from the project directory. Does not delete directories.
+
+        Args:
+            file_path: Relative path to the file from the project root
+        """
+        try:
+            path = _resolved_under_root(folder_path, file_path)
+            if not path.exists():
+                return f"Error: File '{file_path}' does not exist in the project directory."
+            if not path.is_file():
+                return f"Error: '{file_path}' is not a file."
+            path.unlink()
+            return f"Successfully deleted '{file_path}'."
+        except ValueError as e:
+            return str(e)
+        except Exception as e:
+            return f"Error deleting file '{file_path}': {str(e)}"
+
+    @tool
+    def rename_file_tool(from_path: str, to_path: str) -> str:
+        """Rename or move a file within the project directory.
+
+        Args:
+            from_path: Current relative path of the file from the project root
+            to_path: New relative path for the file from the project root
+        """
+        try:
+            src = _resolved_under_root(folder_path, from_path)
+            dst = _resolved_under_root(folder_path, to_path)
+            if not src.exists():
+                return f"Error: File '{from_path}' does not exist in the project directory."
+            if not src.is_file():
+                return f"Error: '{from_path}' is not a file."
+            if src == dst:
+                return f"No change: '{from_path}' is already at that path."
+            if dst.exists():
+                return f"Error: Destination already exists: '{to_path}'."
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            src.rename(dst)
+            return f"Successfully renamed '{from_path}' to '{to_path}'."
+        except ValueError as e:
+            return str(e)
+        except Exception as e:
+            return f"Error renaming file: {str(e)}"
 
     @tool
     def list_files_tool(recursive: bool = True) -> str:
@@ -129,6 +186,8 @@ def create_local_tools(folder_path: Path, attached_image_path: str | None):
     return [
         read_file_tool,
         edit_file_tool,
+        delete_file_tool,
+        rename_file_tool,
         list_files_tool,
         compile_latex_tool,
         read_attached_image_tool,

@@ -14,6 +14,7 @@ export const API_ENDPOINTS = {
   UPLOAD_IMAGE: "/upload-image",
   FILES: "/files",
   FILES_CONTENT: "/files/content",
+  FILES_RENAME: "/files/rename",
   PDF: "/pdf",
   CONFIG: "/config",
   NUKE: "/nuke",

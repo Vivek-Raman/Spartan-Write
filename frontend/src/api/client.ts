@@ -217,6 +217,37 @@ export async function updateFileContent(
   );
 }
 
+export async function deleteFile(
+  dir: string,
+  file: string,
+  options?: RequestInit,
+): Promise<ApiResponse<{ message: string }>> {
+  return request(
+    `${API_ENDPOINTS.FILES_CONTENT}?dir=${encodeURIComponent(dir)}&file=${encodeURIComponent(file)}`,
+    {
+      method: "DELETE",
+      ...options,
+    },
+  );
+}
+
+export async function renameFile(
+  dir: string,
+  fromPath: string,
+  toPath: string,
+  options?: RequestInit,
+): Promise<ApiResponse<{ message: string }>> {
+  return request(API_ENDPOINTS.FILES_RENAME, {
+    method: "POST",
+    body: JSON.stringify({
+      dir,
+      from_path: fromPath,
+      to_path: toPath,
+    }),
+    ...options,
+  });
+}
+
 export async function fetchUsageInfo(
   userId: string,
   nDaysWindow?: number,

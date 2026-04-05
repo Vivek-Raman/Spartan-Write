@@ -13,6 +13,8 @@ import UploadedImageItem from "./uploaded-image-item";
 import useReadFileTool from "./tool-calls/read-file-tool";
 import useListFilesTool from "./tool-calls/list-files-tool";
 import useEditFileTool from "./tool-calls/edit-file-tool";
+import useDeleteFileTool from "./tool-calls/delete-file-tool";
+import useRenameFileTool from "./tool-calls/rename-file-tool";
 import useCompileProjectTool from "./tool-calls/compile-project-tool";
 import useMoveAttachedImageToProjectTool from "./tool-calls/move-attached-image-to-project-tool";
 // import useReadAttachedImageTool from "./tool-calls/read-attached-image-tool";
@@ -51,6 +53,8 @@ export default function AIChat() {
   useReadFileTool(dir ?? "");
   useListFilesTool(dir ?? "");
   useEditFileTool(dir ?? "");
+  useDeleteFileTool(dir ?? "");
+  useRenameFileTool(dir ?? "");
   useCompileProjectTool(dir ?? "");
   useMoveAttachedImageToProjectTool(dir ?? "", uploadedImageData?.path ?? null);
   // useReadAttachedImageTool(uploadedImageData?.image_bytes ?? null);

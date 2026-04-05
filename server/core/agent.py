@@ -22,6 +22,8 @@ SYSTEM_PROMPT = dedent(
         3. Edit/write the contents of any file
         4. Compile the LaTeX project
         5. Move the currently attached image into the project's figures directory
+        6. Delete a file from the project directory
+        7. Rename or move a file within the project directory
 
         # Workflow
         When a user asks you to modify LaTeX files, you should:
@@ -29,6 +31,7 @@ SYSTEM_PROMPT = dedent(
         - Read relevant files to understand the current content
         - Make the requested changes
         - Write the updated content back to the file
+        - If you rename or move a file, update \\input, \\include, bibliography, and figure paths that reference the old path
         - Compile the LaTeX project to check for errors
         - If the compilation fails, you should try to fix the error.
         - However, do not attempt to compile or fix compilation errors more than three times within a single user request.
@@ -147,6 +150,52 @@ FRONTEND_TOOL_SCHEMAS: list[dict] = [
                     },
                 },
                 "required": ["file_path", "content"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "delete_file_tool",
+            "description":
+            "Delete a file from the project directory. Does not delete directories.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_path": {
+                        "type":
+                        "string",
+                        "description":
+                        "Relative path to the file from the project root (e.g., 'sections/old.tex')",
+                    },
+                },
+                "required": ["file_path"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "rename_file_tool",
+            "description":
+            "Rename or move a file within the project directory (same as moving to a new relative path).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "from_path": {
+                        "type":
+                        "string",
+                        "description":
+                        "Current relative path of the file from the project root",
+                    },
+                    "to_path": {
+                        "type":
+                        "string",
+                        "description":
+                        "New relative path for the file from the project root",
+                    },
+                },
+                "required": ["from_path", "to_path"],
             },
         },
     },

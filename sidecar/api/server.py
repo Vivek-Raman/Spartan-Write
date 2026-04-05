@@ -75,6 +75,12 @@ class MoveImageToProjectRequest(BaseModel):
     target_dir: str = "figures"
 
 
+class RenameFileRequest(BaseModel):
+    dir: str
+    from_path: str
+    to_path: str
+
+
 class UsageInfoRequest(BaseModel):
     user_id: str
     n_days_window: int | None = None
@@ -272,6 +278,39 @@ async def update_file_content(
         file_path = Path(dir) / file
         project.edit.edit_file(file_path, request.content)
         return {"success": True, "data": {"message": f"File updated: {file}"}}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/files/content")
+async def delete_file_content(dir: str = Query(...), file: str = Query(...)):
+    try:
+        project.fs_ops.delete_file(Path(dir), file)
+        return {"success": True, "data": {"message": f"File deleted: {file}"}}
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/files/rename")
+async def rename_file(request: RenameFileRequest):
+    try:
+        project.fs_ops.rename_file(Path(request.dir), request.from_path,
+                                   request.to_path)
+        return {
+            "success": True,
+            "data": {
+                "message":
+                f"Renamed '{request.from_path}' to '{request.to_path}'",
+            },
+        }
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

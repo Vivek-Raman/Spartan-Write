@@ -1243,15 +1243,21 @@ export type PromptInputClearChatProps = Omit<
 > & {
   /** Called before the prompt field is cleared (e.g. stop agent and clear messages). */
   onClearChat?: () => void;
+  /** When submitted or streaming, the button is disabled (agent is generating). */
+  status?: ChatStatus;
 };
 
 export const PromptInputClearChat = ({
   onClearChat,
   tooltip = "Clear chat",
   className,
+  status,
+  disabled,
   ...props
 }: PromptInputClearChatProps) => {
   const clearPrompt = usePromptInputClearChat();
+
+  const isGenerating = status === "submitted" || status === "streaming";
 
   const handleClick = useCallback(() => {
     onClearChat?.();
@@ -1262,6 +1268,7 @@ export const PromptInputClearChat = ({
     <PromptInputButton
       aria-label="Clear chat"
       className={className}
+      disabled={disabled || isGenerating}
       onClick={handleClick}
       tooltip={tooltip}
       {...props}

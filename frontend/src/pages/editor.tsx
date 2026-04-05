@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import CodeEditor from "@/components/code-editor";
 import { EditorProvider, useEditor } from "@/contexts/editor-context";
@@ -16,19 +16,33 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { CopilotKit } from "@copilotkit/react-core";
+import { useAgent } from "@copilotkit/react-core/v2";
 import { SERVER_API_BASE_URL } from "@/api/constants";
 import { useTokenRefresh } from "@/lib/auth";
+
+function CompileOnAgentIdle({
+  compileAndRefresh,
+}: {
+  compileAndRefresh: () => Promise<void>;
+}) {
+  const { agent } = useAgent({ agentId: "0" });
+  const prevRunning = useRef(false);
+
+  useEffect(() => {
+    if (prevRunning.current && !agent.isRunning) {
+      void compileAndRefresh();
+    }
+    prevRunning.current = agent.isRunning;
+  }, [agent.isRunning, compileAndRefresh]);
+
+  return null;
+}
 
 function EditorContent() {
   const { currentFile, compileAndRefresh, loadFile, dir } = useEditor();
   const { uploadedImageData } = useImageForAIChat();
   const [activeTab, setActiveTab] = useState<"preview" | "source">("preview");
   const token = useTokenRefresh();
-
-  // FIXME: Invoke this when the AI chat is complete
-  // const onComplete = () => {
-  //   compileAndRefresh();
-  // };
 
   return (
     <CopilotKit
@@ -42,6 +56,7 @@ function EditorContent() {
         attached_image_path: uploadedImageData?.path ?? null,
       }}
       showDevConsole={false}>
+      <CompileOnAgentIdle compileAndRefresh={compileAndRefresh} />
       <div className="flex flex-col h-screen overflow-hidden">
         <TopNavigation activeTab={activeTab} onTabChange={setActiveTab} onCompile={compileAndRefresh} canCompile={!!dir} />
 

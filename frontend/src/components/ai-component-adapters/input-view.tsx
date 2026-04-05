@@ -52,7 +52,7 @@ function AdaptedInputView(props: CopilotChatInputProps) {
       <PromptInputFooter className="flex justify-between">
         <div />
         <div className="flex items-center gap-1">
-          <PromptInputClearChat onClearChat={handleClearChat} />
+          <PromptInputClearChat onClearChat={handleClearChat} status={status} />
           <PromptInputSubmit status={status} onStop={onStop} />
         </div>
       </PromptInputFooter>
