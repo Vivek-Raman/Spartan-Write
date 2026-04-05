@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import CodeEditor from "@/components/code-editor";
+
+const CodeEditor = lazy(() => import("@/components/code-editor"));
 import { EditorProvider, useEditor } from "@/contexts/editor-context";
 import {
   ImageForAIChatProvider,
@@ -76,7 +77,20 @@ function EditorContent() {
             <ResizablePanelGroup orientation="horizontal" className="h-full">
               <ResizablePanel minSize="45%">
                 <div className="h-full min-w-0 min-h-0 flex flex-col border-r">
-                  {activeTab === "source" ? <CodeEditor /> : <PDFView />}
+                  {activeTab === "source" ? (
+                    <Suspense
+                      fallback={
+                        <div className="flex items-center justify-center h-full">
+                          <p className="text-muted-foreground">
+                            Loading editor…
+                          </p>
+                        </div>
+                      }>
+                      <CodeEditor />
+                    </Suspense>
+                  ) : (
+                    <PDFView />
+                  )}
                 </div>
               </ResizablePanel>
               <ResizableHandle />

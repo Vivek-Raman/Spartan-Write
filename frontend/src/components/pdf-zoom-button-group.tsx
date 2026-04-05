@@ -46,7 +46,7 @@ export function PdfZoomButtonGroup({
     <div
       role="group"
       className={cn(
-        "border-input bg-background dark:bg-input/30 inline-flex items-stretch overflow-hidden rounded-md border",
+        "border-input bg-background dark:bg-input/30 inline-flex items-stretch overflow-hidden rounded-md border shadow-sm backdrop-blur-sm",
         compact ? "shrink-0" : "w-full min-w-0",
         className,
       )}
