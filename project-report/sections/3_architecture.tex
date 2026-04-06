@@ -1,0 +1,45 @@
+\section{Architecture}
+
+The application is structured into three modules.
+Two additional modules serve to test the agent and document the application.
+
+\subsection{Frontend}
+
+\begin{itemize}
+    \item Built using React on the Tauri platform.
+    \item Provides powerful interface development tools.
+    \item Also provides seamless and lightweight cross-platform native application deployment.
+    \item Focus on accessibility and ease of use.
+    \item Performs user authentication with an external provider.
+\end{itemize}
+
+\subsection{Sidecar}
+
+\begin{itemize}
+    \item Frontend is packaged along with a Python FastAPI server that will run alongside the application on the user's device.
+    \item This server contains all of the logic to interact with the local file system.
+    \item This allows headless usage of the application via HTTP.
+\end{itemize}
+
+\subsection{Agent}
+
+\begin{itemize}
+    \item Agent is a Python FastAPI server deployed to a trusted execution environment (TEE) on the cloud.
+    \item Defines the behaviour of the AI agent using LangGraph.
+    \item Uses a configurable LLM provision aggregator called OpenRouter, allowing for flexibility in the selection of the language model and the provider.
+    \item After validating the authorization of the user, it invokes the agent, and handles subsequent interactions for frontend tool invocation and passing information.
+\end{itemize}
+
+\subsection{Benchmark}
+
+\begin{itemize}
+    \item The benchmark directly interacts with the agent module.
+    \item Uses a curated dataset of document states along with test user prompts.
+    \item Each item is scored on various subjective and objective metrics.
+\end{itemize}
+
+\subsection{User guide}
+
+\begin{itemize}
+    \item Documentation server.
+\end{itemize}
