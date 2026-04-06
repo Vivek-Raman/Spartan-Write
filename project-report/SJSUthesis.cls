@@ -16,8 +16,6 @@
 \RequirePackage{etoolbox} % Rule 8: Patching environments
 \RequirePackage{mathptmx} % Rule 4: Professional 12pt font (Times clone)
 \RequirePackage{graphicx} % For figures
-\RequirePackage[T1]{fontenc}
-\RequirePackage{newtxtext,newtxmath}
 \RequirePackage{caption} % Rule 10: Caption formatting
 \RequirePackage{tocloft} % Rule 12: ToC styling
 
@@ -69,10 +67,19 @@
 % RULE 10: CAPTIONS AND FLOATS
 % ==========================================
 % Ensure captions are single spaced. 8pt is permitted inside tables/figures.
-\captionsetup{font={singlespacing, small}} 
+\captionsetup{font={singlespacing, small}, parindent=0pt}
+\captionsetup[figure]{justification=centering, parindent=0pt, singlelinecheck=true}
 \AtBeginEnvironment{table}{\singlespacing\small} % Sets table text smaller if needed
-\AtBeginEnvironment{figure}{\singlespacing}
-
+\AtBeginEnvironment{figure}{%
+  \singlespacing
+  \setlength{\parindent}{0pt}%
+  \setlength{\RaggedRightParindent}{0pt}%
+}
+\AtBeginEnvironment{figure*}{%
+  \singlespacing
+  \setlength{\parindent}{0pt}%
+  \setlength{\RaggedRightParindent}{0pt}%
+}
 % ==========================================
 % RULE 12: TABLE OF CONTENTS DEPTH
 % ==========================================
