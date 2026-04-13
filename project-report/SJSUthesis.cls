@@ -69,7 +69,16 @@
 % Ensure captions are single spaced. 8pt is permitted inside tables/figures.
 \captionsetup{font={singlespacing, small}, parindent=0pt}
 \captionsetup[figure]{justification=centering, parindent=0pt, singlelinecheck=true}
-\AtBeginEnvironment{table}{\singlespacing\small} % Sets table text smaller if needed
+\AtBeginEnvironment{table}{%
+  \singlespacing\small
+  \setlength{\parindent}{0pt}%
+  \setlength{\RaggedRightParindent}{0pt}%
+} % Sets table text smaller; no paragraph indent inside float
+\AtBeginEnvironment{table*}{%
+  \singlespacing\small
+  \setlength{\parindent}{0pt}%
+  \setlength{\RaggedRightParindent}{0pt}%
+}
 \AtBeginEnvironment{figure}{%
   \singlespacing
   \setlength{\parindent}{0pt}%
