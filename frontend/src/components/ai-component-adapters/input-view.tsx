@@ -28,6 +28,7 @@ import {
   AttachmentRemove,
 } from "@/components/ai-elements/attachments";
 import { useImageForAIChat } from "@/contexts/image-for-ai-chat-context";
+import { useEditor } from "@/contexts/editor-context";
 import type { UploadImageData } from "@/api/client";
 import { cn } from "@/lib/utils";
 import type { FileUIPart } from "ai";
@@ -142,13 +143,15 @@ function AdaptedInputView(props: CopilotChatInputProps) {
 
   const { syncImageFromPromptFiles, clearAttachmentAfterSend, handleAddImage } =
     useImageForAIChat();
+  const { startNewCopilotThread } = useEditor();
 
   const handleClearChat = useCallback(() => {
     if (agent.isRunning) {
       onStop?.();
     }
     agent.setMessages([]);
-  }, [agent, onStop]);
+    startNewCopilotThread();
+  }, [agent, onStop, startNewCopilotThread]);
 
   const input = (
     <PromptInput

@@ -28,6 +28,10 @@ interface EditorContextValue {
   notifyFileDeleted: (projectRelativePath: string) => void;
   /** Call after a project file is renamed via the sidecar (e.g. tree rename). */
   notifyFileRenamed: (fromPath: string, toPath: string) => void;
+  /** CopilotKit / AG-UI conversation thread id (controlled). */
+  copilotThreadId: string;
+  /** Start a fresh Copilot thread (e.g. “new chat”). */
+  startNewCopilotThread: () => void;
 }
 
 const EditorContext = createContext<EditorContextValue | null>(null);
@@ -45,7 +49,14 @@ export function EditorProvider({ dir, children }: EditorProviderProps) {
   const [compileError, setCompileError] = useState<string | null>(null);
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
+  const [copilotThreadId, setCopilotThreadId] = useState(
+    () => crypto.randomUUID(),
+  );
   const pdfPreviewPageRef = useRef(1);
+
+  const startNewCopilotThread = useCallback(() => {
+    setCopilotThreadId(crypto.randomUUID());
+  }, []);
 
   const refreshFiles = useCallback(async () => {
     if (!dir) return;
@@ -211,6 +222,8 @@ export function EditorProvider({ dir, children }: EditorProviderProps) {
     pdfPreviewPageRef,
     notifyFileDeleted,
     notifyFileRenamed,
+    copilotThreadId,
+    startNewCopilotThread,
   };
 
   return (

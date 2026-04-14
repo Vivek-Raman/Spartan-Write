@@ -126,7 +126,7 @@ async def usage_info(request: UsageInfoRequest):
     return {"success": True, "data": {"data": rows}}
 
 
-def validate_and_fetch_creds(user: User):
+def validate_and_fetch_creds(user: User, thread_id: str):
     if not user:
         raise ValueError("User is required to fetch credentials")
 
@@ -135,4 +135,5 @@ def validate_and_fetch_creds(user: User):
     return AgentCreds(
         **CREDS,
         user_email=user.email,
+        thread_id=thread_id,
     )

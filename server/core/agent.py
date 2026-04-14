@@ -92,6 +92,9 @@ def create_model(creds: AgentCreds):
             'X-Title': 'Spartan Write',
             'HTTP-Referer': 'https://vivekraman.dev/blog/spartan-write',
         },
+        extra_body={
+            "session_id": creds.thread_id,
+        },
         model=creds.openai_api_model,
         api_key=creds.openai_api_key,
         base_url=creds.openai_api_base,

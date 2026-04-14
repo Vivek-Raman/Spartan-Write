@@ -40,7 +40,15 @@ function CompileOnAgentIdle({
 }
 
 function EditorContent() {
-  const { currentFile, compileAndRefresh, loadFile, dir, compileError, clearCompileError } = useEditor();
+  const {
+    currentFile,
+    compileAndRefresh,
+    loadFile,
+    dir,
+    compileError,
+    clearCompileError,
+    copilotThreadId,
+  } = useEditor();
   const { uploadedImageData } = useImageForAIChat();
   const [activeTab, setActiveTab] = useState<"preview" | "source">("preview");
   const token = useTokenRefresh();
@@ -49,6 +57,7 @@ function EditorContent() {
     <CopilotKit
       runtimeUrl={`${SERVER_API_BASE_URL}/copilotkit`}
       agent="0"
+      threadId={copilotThreadId}
       headers={{
         ...(token && { Authorization: `Bearer ${token}` }),
       }}
@@ -56,7 +65,8 @@ function EditorContent() {
         folder_path: dir,
         attached_image_path: uploadedImageData?.path ?? null,
       }}
-      showDevConsole={false}>
+      showDevConsole={false}
+    >
       <CompileOnAgentIdle compileAndRefresh={compileAndRefresh} />
       <div className="flex flex-col h-screen overflow-hidden">
         <TopNavigation
@@ -73,10 +83,7 @@ function EditorContent() {
           {/* Left Sidebar - Files (source mode only) */}
           {activeTab === "source" && (
             <div className="w-64 shrink-0">
-              <FileBrowser
-                selectedFile={currentFile}
-                onFileSelect={loadFile}
-              />
+              <FileBrowser selectedFile={currentFile} onFileSelect={loadFile} />
             </div>
           )}
 
@@ -92,7 +99,8 @@ function EditorContent() {
                             Loading editor…
                           </p>
                         </div>
-                      }>
+                      }
+                    >
                       <CodeEditor />
                     </Suspense>
                   ) : (

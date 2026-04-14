@@ -31,11 +31,12 @@ class ChatRequest(BaseModel):
     dir: str
     prompt: str
     user_email: str
+    model: str | None = None
+    session_id: str | None = None
     attached_image_path: str | None = None
     openai_api_key: str | None = None
     openai_api_base: str | None = None
     openai_api_model: str | None = None
-    model: str | None = None
 
 
 app = FastAPI(title="Spartan Write - Server")
@@ -70,7 +71,8 @@ async def chat(request: ChatRequest):
         creds = agent.AgentCreds(openai_api_key=request.openai_api_key,
                                  openai_api_base=request.openai_api_base,
                                  openai_api_model=resolved_model,
-                                 user_email=request.user_email)
+                                 user_email=request.user_email,
+                                 thread_id=request.session_id)
         folder_path = Path(request.dir)
         graph = agent.create_graph(creds,
                                    folder_path,
@@ -139,7 +141,7 @@ async def copilotkit_handler(request: Request, path: str = ""):
         if user is None:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
-        creds = validate_and_fetch_creds(user)
+        creds = validate_and_fetch_creds(user, input_data.thread_id)
         graph = agent.create_graph(creds, folder_path, attached_image_path)
         agui_agent = SafeLangGraphAGUIAgent(name="0", graph=graph)
 
