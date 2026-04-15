@@ -7,7 +7,7 @@
 			"path": "server"
 		},
 		{
-			"path": "benchmark"
+			"path": "llm-benchmark"
 		}
 	],
 	"settings": {}
