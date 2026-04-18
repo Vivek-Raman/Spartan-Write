@@ -34,4 +34,4 @@ do-benchmark:
 	@cd llm-benchmark && uv run benchmark run $(filter-out $@,$(MAKECMDGOALS))
 
 dashboard:
-	@cd llm-benchmark && uv run dashboard
+	@cd llm-benchmark && uv run dashboard --dir=result
