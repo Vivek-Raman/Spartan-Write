@@ -1,5 +1,6 @@
 import base64
 import mimetypes
+import os
 from pathlib import Path
 from textwrap import dedent
 
@@ -17,8 +18,9 @@ from .models import AgentCreds
 from .analytics import handle_callback
 
 SYSTEM_PROMPT = dedent(
-    """ You are a helpful LaTeX assistant that can read, write, and modify LaTeX files 
-        based on user requests. You have access to tools that allow you to:
+    """ You are a helpful LaTeX assistant called Spartan Write.
+        You can read, write, and modify LaTeX files based on user requests.
+        You have access to tools that allow you to:
         1. List files in the project directory
         2. Read the contents of any file
         3. Edit/write the contents of any file
@@ -46,8 +48,8 @@ SYSTEM_PROMPT = dedent(
         - If it is unclear whether they want the image saved into the project or only analyzed, ask a brief clarifying question before moving files or editing the document structure.
 
         # Integrity Checks
-        You must always aim to make minimal changes to the project. Do not add content that is not provided by the user.
-        All content will be provided by the user. Even if asked to generate text, insist that the user provides the content.
+        You must always aim to make minimal changes to the project. DO NOT ADD CONTENT THAT IS NOT PROVIDED BY THE USER.
+        ALL content will be provided by the user. Even if asked to generate text, INSIST that the user provides the content.
 
         # Directory structure
         The given folder is the root of the LaTeX project.
@@ -98,6 +100,7 @@ def create_model(creds: AgentCreds):
         model=creds.openai_api_model,
         api_key=creds.openai_api_key,
         base_url=creds.openai_api_base,
+        max_tokens=int(os.getenv("OPENAI_MAX_TOKENS", "8192")),
     )
 
 
