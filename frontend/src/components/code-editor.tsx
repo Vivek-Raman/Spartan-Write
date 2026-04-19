@@ -227,7 +227,14 @@ export default function CodeEditor({
   return (
     <TooltipProvider delayDuration={600}>
     <div className="h-full flex flex-col">
-      <div className="flex items-center gap-1 px-3 py-2 border-b bg-background">
+      <div className="flex items-center gap-2 px-3 py-2 border-b bg-background">
+        <div
+          className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border rounded-full text-muted-foreground max-w-[180px] truncate"
+          title={currentFile || "No file"}
+        >
+          {currentFile || "No file"}
+        </div>
+
         {([
           { label: "Bold — \\textbf{}", icon: Bold, action: formatBold },
           { label: "Italic — \\textit{}", icon: Italic, action: formatItalic },
@@ -289,12 +296,6 @@ export default function CodeEditor({
               {saveStatus === "saved" ? "Changes saved" : "Save file (⌘S / Ctrl+S)"}
             </TooltipContent>
           </Tooltip>
-          <div
-            className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider border rounded-full text-muted-foreground max-w-[180px] truncate"
-            title={currentFile || "No file"}
-          >
-            {currentFile || "No file"}
-          </div>
         </div>
       </div>
 

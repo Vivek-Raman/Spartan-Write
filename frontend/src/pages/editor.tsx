@@ -65,6 +65,7 @@ function EditorContent() {
         folder_path: dir,
         attached_image_path: uploadedImageData?.path ?? null,
       }}
+      enableInspector={false}
       showDevConsole={false}
     >
       <CompileOnAgentIdle compileAndRefresh={compileAndRefresh} />

@@ -62,6 +62,10 @@ function reduceScrollContentPaddingBottom(
   });
 }
 
+function NoScrollToBottomButton() {
+  return null;
+}
+
 function AdaptedScrollView(props: React.ComponentProps<typeof CopilotChatView.ScrollView>) {
   const { children, inputContainerHeight = 0, className, ...rest } = props;
 
@@ -70,6 +74,7 @@ function AdaptedScrollView(props: React.ComponentProps<typeof CopilotChatView.Sc
       {...rest}
       className={cn("min-h-0 flex-1", className)}
       inputContainerHeight={inputContainerHeight}
+      scrollToBottomButton={NoScrollToBottomButton}
     >
       {reduceScrollContentPaddingBottom(
         stripSuggestionsFromScrollContent(children),
