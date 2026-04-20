@@ -68,7 +68,7 @@ def get_uploaded_image_bytes_b64(uploaded_path: str) -> str:
 def move_uploaded_image_to_project(
     uploaded_path: str, project_root: Path, target_dir: str = "figures"
 ) -> str:
-    """Move uploaded image into project target directory and return relative path."""
+    """Copy uploaded image into project target directory and return relative path."""
     image_path = _resolve_uploaded_image_path(uploaded_path)
     project_root = project_root.resolve()
     destination_dir = (project_root / target_dir).resolve()
@@ -83,7 +83,7 @@ def move_uploaded_image_to_project(
         destination = destination_dir / f"{stem}-{counter}{suffix}"
         counter += 1
 
-    shutil.move(str(image_path), str(destination))
+    shutil.copy2(str(image_path), str(destination))
     return str(destination.relative_to(project_root))
 
 

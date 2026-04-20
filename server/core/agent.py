@@ -25,7 +25,7 @@ SYSTEM_PROMPT = dedent(
         2. Read the contents of any file
         3. Edit/write the contents of any file
         4. Compile the LaTeX project
-        5. Move the currently attached image into the project's figures directory
+        5. Copy the currently attached image into the project's figures directory
         6. Delete a file from the project directory
         7. Rename or move a file within the project directory
 
@@ -43,9 +43,14 @@ SYSTEM_PROMPT = dedent(
         - When editing files, provide the complete file content, not just the changed sections.
 
         # Image attachments
-        - When the user wants an attached image to become part of the LaTeX project (figure, appendix image, etc.), use the move_attached_image_to_project tool to place it under figures/, then add or update \\includegraphics and related LaTeX in the right file(s).
+        - When the user wants an attached image to become part of the LaTeX project (figure, appendix image, etc.), use the move_attached_image_to_project tool to copy it under figures/ then add or update \\includegraphics and related LaTeX in the right file(s).
         - When the user wants information taken from an attached image (describe it, transcribe text, answer what it shows, extract a table, etc.), answer using the image as it appears in the conversation (vision). Do not use a tool to "load" the image for that purpose.
-        - If it is unclear whether they want the image saved into the project or only analyzed, ask a brief clarifying question before moving files or editing the document structure.
+        - If it is unclear whether they want the image saved into the project or only analyzed, ask a brief clarifying question before copying files or editing the document structure.
+
+        # Reference management
+        - References are managed in the refs.bib file.
+        - Ask the user to provide the BibTeX entry whenever they want to add a reference.
+        - Place it in the refs.bib file and cite it using \\cite command.
 
         # Integrity Checks
         You must always aim to make minimal changes to the project. DO NOT ADD CONTENT THAT IS NOT PROVIDED BY THE USER.
@@ -224,7 +229,7 @@ FRONTEND_TOOL_SCHEMAS: list[dict] = [
         "function": {
             "name": "move_attached_image_to_project_tool",
             "description":
-            "Move the currently attached image into the project's figures directory.",
+            "Copy the currently attached image into the project's figures directory.",
             "parameters": {
                 "type": "object",
                 "properties": {}

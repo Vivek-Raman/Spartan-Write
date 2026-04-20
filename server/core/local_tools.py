@@ -169,6 +169,11 @@ def create_local_tools(folder_path: Path, attached_image_path: str | None):
             while destination.exists():
                 destination = figures_dir / f"{stem}-{counter}{suffix}"
                 counter += 1
+            if image_path.resolve() == destination.resolve():
+                return (
+                    f"Attached image is already at "
+                    f"'{destination.relative_to(folder_path)}'."
+                )
             shutil.copy2(str(image_path), str(destination))
             return f"Copied attached image to '{destination.relative_to(folder_path)}'."
         except Exception as e:
