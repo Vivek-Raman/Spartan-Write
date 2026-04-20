@@ -152,7 +152,11 @@ def create_local_tools(folder_path: Path, attached_image_path: str | None):
 
     @tool
     def move_attached_image_to_project_tool() -> str:
-        """Move the currently attached image into the project's figures directory."""
+        """Copy the currently attached image into the project's figures directory.
+
+        Uses a copy (not a move from disk) so a shared attachment path outside the
+        project—e.g. benchmark assets—is left intact for later runs.
+        """
         if not attached_image_path:
             return "Error: No image is currently attached."
         try:
@@ -165,10 +169,10 @@ def create_local_tools(folder_path: Path, attached_image_path: str | None):
             while destination.exists():
                 destination = figures_dir / f"{stem}-{counter}{suffix}"
                 counter += 1
-            shutil.move(str(image_path), str(destination))
-            return f"Moved attached image to '{destination.relative_to(folder_path)}'."
+            shutil.copy2(str(image_path), str(destination))
+            return f"Copied attached image to '{destination.relative_to(folder_path)}'."
         except Exception as e:
-            return f"Error moving attached image into project: {str(e)}"
+            return f"Error copying attached image into project: {str(e)}"
 
     return [
         read_file_tool,

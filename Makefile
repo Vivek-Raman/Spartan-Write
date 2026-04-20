@@ -33,5 +33,8 @@ run:
 do-benchmark:
 	@cd llm-benchmark && uv run benchmark run $(filter-out $@,$(MAKECMDGOALS))
 
+do-run-job:
+	@cd llm-benchmark && uv run benchmark run-job $(filter-out $@,$(MAKECMDGOALS))
+
 dashboard:
 	@cd llm-benchmark && uv run dashboard --dir=result
