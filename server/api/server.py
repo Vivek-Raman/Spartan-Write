@@ -40,13 +40,18 @@ class ChatRequest(BaseModel):
 
 
 app = FastAPI(title="Spartan Write - Server")
+API_BASE_PATH = "/spartan-write"
 
-app.include_router(usage_router)
+app.include_router(usage_router, prefix=API_BASE_PATH)
 
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
-    unauthenticated_paths = {"/health", "/chat", "/usage-info"}
+    unauthenticated_paths = {
+        f"{API_BASE_PATH}/health",
+        f"{API_BASE_PATH}/chat",
+        f"{API_BASE_PATH}/usage-info",
+    }
     if request.method == "OPTIONS" or request.url.path in unauthenticated_paths:
         return await call_next(request)
 
@@ -59,12 +64,12 @@ async def auth_middleware(request: Request, call_next):
     return await call_next(request)
 
 
-@app.get("/health")
+@app.get(f"{API_BASE_PATH}/health")
 async def health():
     return {"status": "ok", "version": __version__}
 
 
-@app.post("/chat")
+@app.post(f"{API_BASE_PATH}/chat")
 async def chat(request: ChatRequest):
     try:
         resolved_model = request.model or request.openai_api_model
@@ -115,9 +120,9 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/copilotkit")
-@app.post("/copilotkit/")
-@app.post("/copilotkit/{path:path}")
+@app.post(f"{API_BASE_PATH}/copilotkit")
+@app.post(f"{API_BASE_PATH}/copilotkit/")
+@app.post(f"{API_BASE_PATH}/copilotkit/{{path:path}}")
 async def copilotkit_handler(request: Request, path: str = ""):
     """Handle both CopilotKit info/discovery and AG-UI agent execution."""
 
