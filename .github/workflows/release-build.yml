@@ -181,7 +181,7 @@ jobs:
           triple="${{ matrix.target_triple }}"
 
           while IFS= read -r -d '' src; do
-            lower="${src,,}"
+            lower="$(printf '%s' "$src" | tr '[:upper:]' '[:lower:]')"
             case "$lower" in
               *.appimage|*.rpm|*.deb|*.dmg|*.exe|*.msi) ;;
               *) continue ;;
