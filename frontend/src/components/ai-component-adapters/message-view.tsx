@@ -4,7 +4,7 @@ import {
   type CopilotChatMessageViewProps,
   type CopilotChatUserMessageProps,
 } from "@copilotkit/react-core/v2";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Message,
   MessageContent,
@@ -29,16 +29,15 @@ function AdaptedAssistantMessage(props: CopilotChatAssistantMessageProps) {
 function AdaptedUserMessage(props: CopilotChatUserMessageProps) {
   const { message } = props;
   const [isExpanded, setIsExpanded] = useState(false);
-  const shouldCollapse =
-    typeof message.content === "string" &&
-    useMemo(() => message.content.split("\n").length > 15, [message.content]);
+  const content = typeof message.content === "string" ? message.content : null;
+  const shouldCollapse = content !== null && content.split("\n").length > 15;
 
   return (
     <Message from="user" className="my-4">
       <MessageContent>
-        {typeof message.content === "string" && (
+        {content !== null && (
           <>
-            <MessageResponse
+            <div
               style={
                 shouldCollapse && !isExpanded
                   ? {
@@ -50,8 +49,8 @@ function AdaptedUserMessage(props: CopilotChatUserMessageProps) {
                   : undefined
               }
             >
-              {message.content}
-            </MessageResponse>
+              <MessageResponse>{content}</MessageResponse>
+            </div>
             {shouldCollapse && !isExpanded && (
               <button
                 type="button"
