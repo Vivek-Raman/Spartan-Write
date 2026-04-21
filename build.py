@@ -139,9 +139,37 @@ def download_tectonic(target_triple: str) -> Path:
 def run(cmd: list[str],
         cwd: Path | None = None,
         check: bool = True) -> subprocess.CompletedProcess:
-    """Run a command and print it."""
+    """Run a command, printing full logs if it fails."""
     print(f"+ {' '.join(cmd)}")
-    return subprocess.run(cmd, cwd=cwd, check=check)
+    completed = subprocess.run(
+        cmd,
+        cwd=cwd,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    if completed.returncode != 0:
+        if completed.stdout:
+            print("\n--- Command stdout (failure) ---")
+            print(completed.stdout, end="" if completed.stdout.endswith("\n") else "\n")
+        if completed.stderr:
+            print("\n--- Command stderr (failure) ---", file=sys.stderr)
+            print(
+                completed.stderr,
+                file=sys.stderr,
+                end="" if completed.stderr.endswith("\n") else "\n",
+            )
+
+        if check:
+            raise subprocess.CalledProcessError(
+                completed.returncode,
+                cmd,
+                output=completed.stdout,
+                stderr=completed.stderr,
+            )
+
+    return completed
 
 
 def update_submodules() -> None:
@@ -302,6 +330,14 @@ if __name__ == "__main__":
         )
         if failed_cmd:
             print(f"!!! Failed command: {failed_cmd}", file=sys.stderr)
+        if e.stdout:
+            print("!!! Captured stdout:", file=sys.stderr)
+            print(e.stdout, file=sys.stderr,
+                  end="" if e.stdout.endswith("\n") else "\n")
+        if e.stderr:
+            print("!!! Captured stderr:", file=sys.stderr)
+            print(e.stderr, file=sys.stderr,
+                  end="" if e.stderr.endswith("\n") else "\n")
         print(
             "!!! Tip: run with CI-style verbose logs enabled (e.g. RUST_BACKTRACE=1 CARGO_TERM_VERBOSE=true).",
             file=sys.stderr,
