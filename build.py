@@ -19,6 +19,7 @@ import tarfile
 import tempfile
 import urllib.request
 import zipfile
+import os
 from pathlib import Path
 
 # Paths
@@ -294,8 +295,22 @@ if __name__ == "__main__":
     try:
         main()
     except subprocess.CalledProcessError as e:
-        print(f"\n!!! Build failed: command exited with code {e.returncode}",
-              file=sys.stderr)
+        failed_cmd = " ".join(str(part) for part in (e.cmd or []))
+        print(
+            f"\n!!! Build failed: command exited with code {e.returncode}",
+            file=sys.stderr,
+        )
+        if failed_cmd:
+            print(f"!!! Failed command: {failed_cmd}", file=sys.stderr)
+        print(
+            "!!! Tip: run with CI-style verbose logs enabled (e.g. RUST_BACKTRACE=1 CARGO_TERM_VERBOSE=true).",
+            file=sys.stderr,
+        )
+        if os.name == "nt":
+            print(
+                "!!! Windows hint: if this fails in Tauri bundling, inspect WebView2/WiX/NSIS prerequisites in runner logs.",
+                file=sys.stderr,
+            )
         sys.exit(1)
     except FileNotFoundError as e:
         print(f"\n!!! Build failed: {e}", file=sys.stderr)
