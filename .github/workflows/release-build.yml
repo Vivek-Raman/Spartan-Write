@@ -159,7 +159,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: desktop-${{ matrix.target_triple }}
-          path: frontend/src-tauri/target/release/bundle/**
+          path: |
+            frontend/src-tauri/target/release/bundle/**/*.AppImage
+            frontend/src-tauri/target/release/bundle/**/*.rpm
+            frontend/src-tauri/target/release/bundle/**/*.deb
+            frontend/src-tauri/target/release/bundle/**/*.dmg
+            frontend/src-tauri/target/release/bundle/**/*.exe
+            frontend/src-tauri/target/release/bundle/**/*.msi
           if-no-files-found: error
           retention-days: 30
 
@@ -171,6 +177,12 @@ jobs:
           triple="${{ matrix.target_triple }}"
 
           while IFS= read -r -d '' src; do
+            lower="${src,,}"
+            case "$lower" in
+              *.appimage|*.rpm|*.deb|*.dmg|*.exe|*.msi) ;;
+              *) continue ;;
+            esac
+
             file="$(basename "$src")"
             base="${file%.*}"
             ext="${file##*.}"
