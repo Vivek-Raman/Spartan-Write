@@ -48,6 +48,12 @@ function fileUIPartToUploadPayload(part: FileUIPart): {
 
 interface ImageForAIChatContextValue {
   uploadedImageData: UploadImageData | null;
+  /** Immediate per-submit override so forwarded props include the just-uploaded image path. */
+  submittingImagePath: string | null;
+  setSubmittingImagePath: (path: string | null) => void;
+  /** Immediate per-submit override so forwarded props include image bytes as data URL. */
+  submittingImageDataUrl: string | null;
+  setSubmittingImageDataUrl: (url: string | null) => void;
   handleAddImage: () => Promise<void>;
   handleRemoveImage: () => Promise<void>;
   /** Returns the attachment path used for this send (if any). */
@@ -64,6 +70,8 @@ interface ImageForAIChatProviderProps {
 
 export function ImageForAIChatProvider({ children }: ImageForAIChatProviderProps) {
   const [uploadedImageData, setUploadedImageData] = useState<UploadImageData | null>(null);
+  const [submittingImagePath, setSubmittingImagePath] = useState<string | null>(null);
+  const [submittingImageDataUrl, setSubmittingImageDataUrl] = useState<string | null>(null);
 
   const handleAddImage = useCallback(async (): Promise<void> => {
     const selected = await open({
@@ -136,15 +144,23 @@ export function ImageForAIChatProvider({ children }: ImageForAIChatProviderProps
       clearAttachmentAfterSend,
       handleAddImage,
       handleRemoveImage,
+      setSubmittingImageDataUrl,
+      setSubmittingImagePath,
       syncImageFromPromptFiles,
+      submittingImageDataUrl,
+      submittingImagePath,
       uploadedImageData,
     }),
     [
       uploadedImageData,
+      submittingImageDataUrl,
+      submittingImagePath,
       syncImageFromPromptFiles,
       clearAttachmentAfterSend,
       handleAddImage,
       handleRemoveImage,
+      setSubmittingImageDataUrl,
+      setSubmittingImagePath,
     ],
   );
 

@@ -34,6 +34,7 @@ class ChatRequest(BaseModel):
     model: str | None = None
     session_id: str | None = None
     attached_image_path: str | None = None
+    attached_image_data_url: str | None = None
     openai_api_key: str | None = None
     openai_api_base: str | None = None
     openai_api_model: str | None = None
@@ -82,6 +83,7 @@ async def chat(request: ChatRequest):
         graph = agent.create_graph(creds,
                                    folder_path,
                                    request.attached_image_path,
+                                   request.attached_image_data_url,
                                    local_execution=True)
         thread_id = str(uuid.uuid4())
         config = {"configurable": {"thread_id": thread_id}}
@@ -141,13 +143,16 @@ async def copilotkit_handler(request: Request, path: str = ""):
         forwarded_props = input_data.forwarded_props or {}
         folder_path = Path(forwarded_props.get("folder_path", "."))
         attached_image_path = forwarded_props.get("attached_image_path", None)
+        attached_image_data_url = forwarded_props.get("attached_image_data_url",
+                                                     None)
 
         user = request.state.auth.user
         if user is None:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
         creds = validate_and_fetch_creds(user, input_data.thread_id)
-        graph = agent.create_graph(creds, folder_path, attached_image_path)
+        graph = agent.create_graph(creds, folder_path, attached_image_path,
+                                   attached_image_data_url)
         agui_agent = SafeLangGraphAGUIAgent(name="0", graph=graph)
 
         accept_header = request.headers.get("accept")

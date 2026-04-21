@@ -34,6 +34,7 @@ import { cn } from "@/lib/utils";
 import type { FileUIPart } from "ai";
 import { ImagePlus } from "lucide-react";
 import { useCallback, useMemo } from "react";
+import { flushSync } from "react-dom";
 
 const CONTEXT_ATTACHED_ID = "context-attached";
 
@@ -141,7 +142,14 @@ function AdaptedInputView(props: CopilotChatInputProps) {
 
   const status = agent.isRunning ? "streaming" : "ready";
 
-  const { syncImageFromPromptFiles, clearAttachmentAfterSend, handleAddImage } =
+  const {
+    syncImageFromPromptFiles,
+    clearAttachmentAfterSend,
+    handleAddImage,
+    uploadedImageData,
+    setSubmittingImageDataUrl,
+    setSubmittingImagePath,
+  } =
     useImageForAIChat();
   const { startNewCopilotThread } = useEditor();
 
@@ -160,7 +168,23 @@ function AdaptedInputView(props: CopilotChatInputProps) {
       multiple={false}
       onSubmit={async (prompt) => {
         const pathForMessage = await syncImageFromPromptFiles(prompt.files);
-        await Promise.resolve(onSubmitMessage?.(prompt.text));
+        const dataUrlForMessage =
+          prompt.files[0]?.url ??
+          (uploadedImageData
+            ? `data:${mimeFromFilename(uploadedImageData.original_filename)};base64,${uploadedImageData.image_bytes}`
+            : null);
+        flushSync(() => {
+          setSubmittingImagePath(pathForMessage);
+          setSubmittingImageDataUrl(dataUrlForMessage);
+        });
+        try {
+          await Promise.resolve(onSubmitMessage?.(prompt.text));
+        } finally {
+          flushSync(() => {
+            setSubmittingImagePath(null);
+            setSubmittingImageDataUrl(null);
+          });
+        }
         if (pathForMessage) {
           clearAttachmentAfterSend(pathForMessage);
         }

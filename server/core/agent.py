@@ -43,9 +43,11 @@ SYSTEM_PROMPT = dedent(
         - When editing files, provide the complete file content, not just the changed sections.
 
         # Image attachments
-        - When the user wants an attached image to become part of the LaTeX project (figure, appendix image, etc.), use the move_attached_image_to_project tool to copy it under figures/ then add or update \\includegraphics and related LaTeX in the right file(s).
-        - When the user wants information taken from an attached image (describe it, transcribe text, answer what it shows, extract a table, etc.), answer using the image as it appears in the conversation (vision). Do not use a tool to "load" the image for that purpose.
-        - If it is unclear whether they want the image saved into the project or only analyzed, ask a brief clarifying question before copying files or editing the document structure.
+        - If an image attachment exists for the current turn, you will receive attachment context in the latest user message. Treat it as available input for this request.
+        - For LaTeX/project tasks involving the attachment (figure insertion, appendix image, placing assets in project), ALWAYS use move_attached_image_to_project_tool first, then edit LaTeX paths accordingly.
+        - Prefer the attachment tool workflow over visual analysis. You do not need to inspect image pixels to complete project integration tasks.
+        - If the user explicitly asks for visual interpretation (describe/transcribe/extract table), use vision if available.
+        - If it is unclear whether they want project attachment or visual interpretation, ask one brief clarifying question before editing.
 
         # Reference management
         - References are managed in the refs.bib file.
@@ -273,15 +275,15 @@ def _data_url_for_image_file(path: Path) -> str | None:
 def _inject_attached_image_into_messages(
     messages: list[BaseMessage],
     attached_image_path: str | None,
+    attached_image_data_url: str | None = None,
 ) -> list[BaseMessage]:
-    """Append vision input for the staged attachment to the latest HumanMessage."""
-    if not attached_image_path:
-        return messages
-    path = Path(attached_image_path)
-    if not path.is_file():
-        return messages
-    data_url = _data_url_for_image_file(path)
-    if not data_url:
+    """Append attachment context + optional vision block to the latest HumanMessage."""
+    data_url = attached_image_data_url
+    if not data_url and attached_image_path:
+        path = Path(attached_image_path)
+        if path.is_file():
+            data_url = _data_url_for_image_file(path)
+    if not attached_image_path and not data_url:
         return messages
 
     out = list(messages)
@@ -291,23 +293,27 @@ def _inject_attached_image_into_messages(
             continue
         if _content_has_image_url_block(msg.content):
             break
-        image_block: dict = {
-            "type": "image_url",
-            "image_url": {"url": data_url},
-        }
+        attachment_context_text = (
+            "ATTACHMENT_CONTEXT:\n"
+            f"- attached_image_path: {attached_image_path or '(not provided)'}\n"
+            f"- attached_image_data_url_present: {'yes' if data_url else 'no'}\n"
+            "- For project tasks, use move_attached_image_to_project_tool.\n"
+            "- Do not claim the image is unavailable when attachment context is present."
+        )
+        context_block: dict = {"type": "text", "text": attachment_context_text}
+        blocks_to_append = [context_block]
+        if data_url:
+            blocks_to_append.append({
+                "type": "image_url",
+                "image_url": {"url": data_url},
+            })
         content = msg.content
         if isinstance(content, str):
-            new_content: list | str = [
-                {"type": "text", "text": content},
-                image_block,
-            ]
+            new_content: list | str = [{"type": "text", "text": content}, *blocks_to_append]
         elif isinstance(content, list):
-            new_content = list(content) + [image_block]
+            new_content = list(content) + blocks_to_append
         else:
-            new_content = [
-                {"type": "text", "text": str(content)},
-                image_block,
-            ]
+            new_content = [{"type": "text", "text": str(content)}, *blocks_to_append]
         if hasattr(msg, "model_copy"):
             out[i] = msg.model_copy(update={"content": new_content})
         else:
@@ -319,6 +325,7 @@ def _inject_attached_image_into_messages(
 def create_graph(creds: AgentCreds,
                  folder_path: Path,
                  attached_image_path: str | None,
+                 attached_image_data_url: str | None = None,
                  local_execution: bool = False) -> CompiledStateGraph:
     """Create and return a configured LangGraph agent.
 
@@ -337,7 +344,7 @@ def create_graph(creds: AgentCreds,
 
     def call_model(state: CopilotKitState):
         augmented = _inject_attached_image_into_messages(
-            state["messages"], attached_image_path)
+            state["messages"], attached_image_path, attached_image_data_url)
         messages = [SystemMessage(content=SYSTEM_PROMPT)] + augmented
         return {
             "messages": [

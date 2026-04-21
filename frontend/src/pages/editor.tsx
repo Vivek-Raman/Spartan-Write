@@ -49,7 +49,8 @@ function EditorContent() {
     clearCompileError,
     copilotThreadId,
   } = useEditor();
-  const { uploadedImageData } = useImageForAIChat();
+  const { uploadedImageData, submittingImagePath, submittingImageDataUrl } =
+    useImageForAIChat();
   const [activeTab, setActiveTab] = useState<"preview" | "source">("preview");
   const token = useTokenRefresh();
 
@@ -63,7 +64,8 @@ function EditorContent() {
       }}
       properties={{
         folder_path: dir,
-        attached_image_path: uploadedImageData?.path ?? null,
+        attached_image_path: submittingImagePath ?? uploadedImageData?.path ?? null,
+        attached_image_data_url: submittingImageDataUrl ?? null,
       }}
       enableInspector={false}
       showDevConsole={false}
