@@ -153,11 +153,6 @@ jobs:
         working-directory: frontend
 
       - name: Build production bundles
-        env:
-          RUST_BACKTRACE: "1"
-          CARGO_TERM_VERBOSE: "true"
-          RUST_LOG: "debug"
-          TAURI_LOG_LEVEL: "debug"
         run: uv run python build.py
 
       - name: Upload desktop build artifacts

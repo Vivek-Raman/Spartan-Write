@@ -92,6 +92,14 @@ def get_tectonic_sidecar_name(target_triple: str) -> str:
     return base
 
 
+def get_npm_executable() -> str:
+    """Return the right npm executable for the current OS."""
+    if os.name == "nt":
+        # On Windows runners, npm is typically exposed as npm.cmd.
+        return "npm.cmd"
+    return "npm"
+
+
 def download_tectonic(target_triple: str) -> Path:
     """Download tectonic binary and copy to sidecar directory."""
     print("\n=== Downloading tectonic binary ===")
@@ -139,37 +147,9 @@ def download_tectonic(target_triple: str) -> Path:
 def run(cmd: list[str],
         cwd: Path | None = None,
         check: bool = True) -> subprocess.CompletedProcess:
-    """Run a command, printing full logs if it fails."""
+    """Run a command and print it."""
     print(f"+ {' '.join(cmd)}")
-    completed = subprocess.run(
-        cmd,
-        cwd=cwd,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-
-    if completed.returncode != 0:
-        if completed.stdout:
-            print("\n--- Command stdout (failure) ---")
-            print(completed.stdout, end="" if completed.stdout.endswith("\n") else "\n")
-        if completed.stderr:
-            print("\n--- Command stderr (failure) ---", file=sys.stderr)
-            print(
-                completed.stderr,
-                file=sys.stderr,
-                end="" if completed.stderr.endswith("\n") else "\n",
-            )
-
-        if check:
-            raise subprocess.CalledProcessError(
-                completed.returncode,
-                cmd,
-                output=completed.stdout,
-                stderr=completed.stderr,
-            )
-
-    return completed
+    return subprocess.run(cmd, cwd=cwd, check=check)
 
 
 def update_submodules() -> None:
@@ -276,14 +256,23 @@ def copy_sidecar(exe_path: Path, target_triple: str) -> Path:
 def build_tauri_release():
     """Run tauri build to create the final app bundle."""
     print("\n=== Building Tauri app ===")
-    run(["npm", "run", "tauri", "build"], cwd=FRONTEND_DIR)
+    run([get_npm_executable(), "run", "tauri", "build"], cwd=FRONTEND_DIR)
 
 
 def build_tauri_debug():
     """Run tauri build with debug flag. Skip DMG to avoid bundle_dmg.sh failures."""
     print("\n=== Building Tauri app ===")
     run(
-        ["npm", "run", "tauri", "build", "--", "--debug", "--bundles", "app"],
+        [
+            get_npm_executable(),
+            "run",
+            "tauri",
+            "build",
+            "--",
+            "--debug",
+            "--bundles",
+            "app",
+        ],
         cwd=FRONTEND_DIR,
     )
 
@@ -323,30 +312,8 @@ if __name__ == "__main__":
     try:
         main()
     except subprocess.CalledProcessError as e:
-        failed_cmd = " ".join(str(part) for part in (e.cmd or []))
-        print(
-            f"\n!!! Build failed: command exited with code {e.returncode}",
-            file=sys.stderr,
-        )
-        if failed_cmd:
-            print(f"!!! Failed command: {failed_cmd}", file=sys.stderr)
-        if e.stdout:
-            print("!!! Captured stdout:", file=sys.stderr)
-            print(e.stdout, file=sys.stderr,
-                  end="" if e.stdout.endswith("\n") else "\n")
-        if e.stderr:
-            print("!!! Captured stderr:", file=sys.stderr)
-            print(e.stderr, file=sys.stderr,
-                  end="" if e.stderr.endswith("\n") else "\n")
-        print(
-            "!!! Tip: run with CI-style verbose logs enabled (e.g. RUST_BACKTRACE=1 CARGO_TERM_VERBOSE=true).",
-            file=sys.stderr,
-        )
-        if os.name == "nt":
-            print(
-                "!!! Windows hint: if this fails in Tauri bundling, inspect WebView2/WiX/NSIS prerequisites in runner logs.",
-                file=sys.stderr,
-            )
+        print(f"\n!!! Build failed: command exited with code {e.returncode}",
+              file=sys.stderr)
         sys.exit(1)
     except FileNotFoundError as e:
         print(f"\n!!! Build failed: {e}", file=sys.stderr)
