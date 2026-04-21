@@ -50,11 +50,6 @@ def set_version(version: str) -> list[str]:
             rf'\g<1>{version}\2',
         ),
         (
-            ROOT / "llm-benchmark" / "pyproject.toml",
-            r'^(version\s*=\s*")[^"]+(")',
-            rf'\g<1>{version}\2',
-        ),
-        (
             ROOT / "user-guide" / "pyproject.toml",
             r'^(version\s*=\s*")[^"]+(")',
             rf'\g<1>{version}\2',
