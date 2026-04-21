@@ -1,6 +1,6 @@
 [project]
 name = "latex-chatbot-sidecar"
-version = "1.0.1"
+version = "1.0.2"
 description = "LaTeX Chatbot Sidecar"
 readme = "README.md"
 requires-python = ">=3.14"

@@ -27,6 +27,9 @@ export default function useEditFileTool(dir: string) {
       },
     ],
     handler: async ({ file_path, content }) => {
+      if (content.length > 20000) {
+        return "Error: Too much content. Split up the content into separate subsection tex files. Remember to update main.tex to input the subsections.";
+      }
       try {
         const res = await updateFileContent(dir, file_path, content);
         return res.data?.message ?? `Successfully updated '${file_path}'.`;

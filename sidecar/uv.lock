@@ -398,7 +398,7 @@ wheels = [
 
 [[package]]
 name = "latex-chatbot-sidecar"
-version = "1.0.0"
+version = "1.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "copilotkit" },

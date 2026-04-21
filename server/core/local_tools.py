@@ -44,6 +44,11 @@ def create_local_tools(folder_path: Path, attached_image_path: str | None):
             content: The complete content to write to the file
         """
         full_path = folder_path / file_path
+        if len(content) > 20000:
+            return (
+                "Error: Too much content. Split up the content into separate "
+                "subsection tex files. Remember to update main.tex to input the subsections."
+            )
         try:
             full_path.parent.mkdir(parents=True, exist_ok=True)
             full_path.write_text(content)

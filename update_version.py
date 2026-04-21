@@ -69,6 +69,11 @@ def set_version(version: str) -> list[str]:
             r'(\[\[package\]\]\nname = "spartan-write-user-guide"\nversion = ")[^"]+(")',
             rf'\g<1>{version}\2',
         ),
+        (
+            ROOT / "sidecar" / "uv.lock",
+            r'(\[\[package\]\]\nname = "latex-chatbot-sidecar"\nversion = ")[^"]+(")',
+            rf'\g<1>{version}\2',
+        ),
     ]
 
     for path, pattern, replacement in targets:
