@@ -93,7 +93,7 @@ class UsageInfoRequest(BaseModel):
     n_days_window: int | None = None
 
 
-SPARTAN_SERVER_URL = os.getenv("SPARTAN_SERVER_URL", "http://127.0.0.1:8767")
+SPARTAN_SERVER_URL = "https://vivekraman.dev/spartan-write"
 
 
 app = FastAPI(title="Spartain Write - Sidecar")
